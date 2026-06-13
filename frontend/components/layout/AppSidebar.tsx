@@ -79,11 +79,9 @@ export function AppSidebar() {
           <SidebarMenu>
             {mainNav.map(({ href, icon: Icon, label }) => (
               <SidebarMenuItem key={href}>
-                <SidebarMenuButton asChild isActive={pathname === href}>
-                  <Link href={href}>
-                    <Icon className="h-4 w-4" />
-                    <span>{label}</span>
-                  </Link>
+                <SidebarMenuButton render={<Link href={href} />} isActive={pathname === href}>
+                  <Icon className="h-4 w-4" />
+                  <span>{label}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
@@ -99,11 +97,9 @@ export function AppSidebar() {
               .filter(({ role }) => canAccess(role))
               .map(({ href, icon: Icon, label }) => (
                 <SidebarMenuItem key={href}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(href)}>
-                    <Link href={href}>
+                  <SidebarMenuButton render={<Link href={href} />} isActive={pathname.startsWith(href)}>
                       <Icon className="h-4 w-4" />
                       <span>{label}</span>
-                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

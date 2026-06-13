@@ -57,11 +57,9 @@ export function InstanceCard({ instance }: { instance: Instance }) {
           )}
         </div>
         <div className="flex items-center gap-1.5 pt-1">
-          <Button asChild variant="default" size="sm" className="flex-1">
-            <Link href={`/${instance.id}/config`}>
-              <Settings className="h-3.5 w-3.5 mr-1" />
-              Manage
-            </Link>
+          <Button variant="default" size="sm" className="flex-1" render={<Link href={`/${instance.id}/config`} />}>
+            <Settings className="h-3.5 w-3.5 mr-1" />
+            Manage
           </Button>
           <Button
             variant="outline"

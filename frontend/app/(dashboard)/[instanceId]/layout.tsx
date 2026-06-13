@@ -44,8 +44,12 @@ export default function InstanceLayout({ children }: { children: React.ReactNode
       <Tabs value={activeTab ?? "config"}>
         <TabsList>
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.href} value={tab.href.split("/")[0]} asChild>
-              <Link href={`/${instanceId}/${tab.href}`}>{tab.label}</Link>
+            <TabsTrigger
+              key={tab.href}
+              value={tab.href.split("/")[0]}
+              render={<Link href={`/${instanceId}/${tab.href}`} />}
+            >
+              {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>

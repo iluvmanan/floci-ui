@@ -26,13 +26,14 @@ export default function ServicesPage() {
     )
   }
 
-  const byCategory = (data?.services ?? []).reduce(
+  const services = data?.services ?? []
+  const byCategory = services.reduce(
     (acc, svc) => {
       if (!acc[svc.category]) acc[svc.category] = []
       acc[svc.category].push(svc)
       return acc
     },
-    {} as Record<string, typeof data.services>
+    {} as Record<string, typeof services>
   )
 
   return (
