@@ -1,0 +1,23 @@
+# Bundled Floci instance for local demo
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.floci.yml up
+services:
+  floci-demo:
+    image: floci/floci:latest
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - floci_data:/app/data
+    environment:
+      FLOCI_STORAGE_MODE: hybrid
+      FLOCI_DEFAULT_REGION: us-east-1
+      FLOCI_DEFAULT_ACCOUNT_ID: "000000000000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_floci/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  floci_data:

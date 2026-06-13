@@ -1,0 +1,34 @@
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgresql+asyncpg://floci:floci_secret@postgres:5432/floci_console
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      ENCRYPTION_KEY: dev-encryption-key-32-chars-long!
+      FIRST_SUPERADMIN_EMAIL: admin@example.com
+      FIRST_SUPERADMIN_PASSWORD: admin123
+      BACKEND_CORS_ORIGINS: http://localhost:3000
+      ENVIRONMENT: development
+      DEBUG: "true"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      WATCHPACK_POLLING: "true"
+    command: npm run dev
