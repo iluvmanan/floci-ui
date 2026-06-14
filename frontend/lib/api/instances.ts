@@ -119,12 +119,24 @@ export const instancesApi = {
 
   // Lambda
   listFunctions: (id: string) => api.get(`/instances/${id}/resources/lambda/functions`),
+  createFunction: (id: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/lambda/functions`, body),
   deleteFunction: (id: string, name: string) =>
     api.delete(`/instances/${id}/resources/lambda/functions/${name}`),
   invokeFunction: (id: string, name: string, payload: object) =>
     api.post(`/instances/${id}/resources/lambda/functions/${name}/invoke`, { payload }),
   getFunctionLogs: (id: string, name: string) =>
     api.get(`/instances/${id}/resources/lambda/functions/${name}/logs`),
+  getFunction: (id: string, name: string) =>
+    api.get(`/instances/${id}/resources/lambda/functions/${name}`),
+  updateFunctionCode: (id: string, name: string, zip_base64: string) =>
+    api.put(`/instances/${id}/resources/lambda/functions/${name}/code`, { zip_base64 }),
+  updateFunctionConfig: (id: string, name: string, body: Record<string, unknown>) =>
+    api.put(`/instances/${id}/resources/lambda/functions/${name}/config`, body),
+  listAliases: (id: string, name: string) =>
+    api.get(`/instances/${id}/resources/lambda/functions/${name}/aliases`),
+  createAlias: (id: string, name: string, body: { name: string; function_version: string; description?: string }) =>
+    api.post(`/instances/${id}/resources/lambda/functions/${name}/aliases`, body),
 
   // SQS
   listQueues: (id: string) => api.get(`/instances/${id}/resources/sqs/queues`),
