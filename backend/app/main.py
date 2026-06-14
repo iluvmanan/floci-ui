@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.database import AsyncSessionLocal, Base, engine
 from app.middleware.audit import make_audit_middleware
 from app.routers import audit, auth, api_keys, config, instances, monitoring, services, system, users
-from app.routers.resources import s3, dynamodb, lambda_, sqs, sns, kinesis, eventbridge, cognito
+from app.routers.resources import s3, dynamodb, lambda_, sqs, sns, kinesis, eventbridge, cognito, ec2
 from app.services.auth_service import seed_superadmin
 from app.services.instance_service import run_periodic_health_checks
 
@@ -80,6 +80,7 @@ app.include_router(sns.router, prefix="/api")
 app.include_router(kinesis.router, prefix="/api")
 app.include_router(eventbridge.router, prefix="/api")
 app.include_router(cognito.router, prefix="/api")
+app.include_router(ec2.router, prefix="/api")
 app.include_router(monitoring.router, prefix="/api")
 app.include_router(audit.router, prefix="/api")
 app.include_router(api_keys.router, prefix="/api")

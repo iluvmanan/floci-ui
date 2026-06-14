@@ -223,6 +223,70 @@ export const instancesApi = {
   createAppClient: (id: string, poolId: string, body: { client_name: string; generate_secret: boolean }) =>
     api.post(`/instances/${id}/resources/cognito/user-pools/${poolId}/app-clients`, body),
 
+  // EC2
+  listEC2Instances: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/instances`),
+  launchEC2Instance: (id: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/ec2/instances`, body),
+  startEC2Instance: (id: string, instanceId: string) =>
+    api.post(`/instances/${id}/resources/ec2/instances/${instanceId}/start`),
+  stopEC2Instance: (id: string, instanceId: string) =>
+    api.post(`/instances/${id}/resources/ec2/instances/${instanceId}/stop`),
+  rebootEC2Instance: (id: string, instanceId: string) =>
+    api.post(`/instances/${id}/resources/ec2/instances/${instanceId}/reboot`),
+  terminateEC2Instance: (id: string, instanceId: string) =>
+    api.post(`/instances/${id}/resources/ec2/instances/${instanceId}/terminate`),
+  getEC2ConsoleOutput: (id: string, instanceId: string) =>
+    api.get(`/instances/${id}/resources/ec2/instances/${instanceId}/console`),
+  getEC2ConnectInfo: (id: string, instanceId: string) =>
+    api.get(`/instances/${id}/resources/ec2/instances/${instanceId}/connect`),
+  listKeyPairs: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/key-pairs`),
+  createKeyPair: (id: string, name: string) =>
+    api.post(`/instances/${id}/resources/ec2/key-pairs`, { name }),
+  deleteKeyPair: (id: string, name: string) =>
+    api.delete(`/instances/${id}/resources/ec2/key-pairs/${name}`),
+  importKeyPair: (id: string, name: string, publicKey: string) =>
+    api.post(`/instances/${id}/resources/ec2/key-pairs/import`, { name, public_key: publicKey }),
+  listSecurityGroups: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/security-groups`),
+  createSecurityGroup: (id: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/ec2/security-groups`, body),
+  deleteSecurityGroup: (id: string, groupId: string) =>
+    api.delete(`/instances/${id}/resources/ec2/security-groups/${groupId}`),
+  getSecurityGroupRules: (id: string, groupId: string) =>
+    api.get(`/instances/${id}/resources/ec2/security-groups/${groupId}/rules`),
+  addIngressRule: (id: string, groupId: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/ec2/security-groups/${groupId}/ingress`, body),
+  revokeIngressRule: (id: string, groupId: string, body: Record<string, unknown>) =>
+    api.delete(`/instances/${id}/resources/ec2/security-groups/${groupId}/ingress`, { data: body }),
+  listAMIs: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/amis`),
+  listVolumes: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/volumes`),
+  createVolume: (id: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/ec2/volumes`, body),
+  attachVolume: (id: string, volumeId: string, body: { instance_id: string; device: string }) =>
+    api.post(`/instances/${id}/resources/ec2/volumes/${volumeId}/attach`, body),
+  detachVolume: (id: string, volumeId: string) =>
+    api.post(`/instances/${id}/resources/ec2/volumes/${volumeId}/detach`),
+  deleteVolume: (id: string, volumeId: string) =>
+    api.delete(`/instances/${id}/resources/ec2/volumes/${volumeId}`),
+  listElasticIPs: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/elastic-ips`),
+  allocateElasticIP: (id: string) =>
+    api.post(`/instances/${id}/resources/ec2/elastic-ips`),
+  associateElasticIP: (id: string, allocationId: string, instanceId: string) =>
+    api.post(`/instances/${id}/resources/ec2/elastic-ips/${allocationId}/associate`, { instance_id: instanceId }),
+  disassociateElasticIP: (id: string, allocationId: string) =>
+    api.post(`/instances/${id}/resources/ec2/elastic-ips/${allocationId}/disassociate`),
+  releaseElasticIP: (id: string, allocationId: string) =>
+    api.delete(`/instances/${id}/resources/ec2/elastic-ips/${allocationId}`),
+  listVPCs: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/vpcs`),
+  listSubnets: (id: string) =>
+    api.get(`/instances/${id}/resources/ec2/subnets`),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
