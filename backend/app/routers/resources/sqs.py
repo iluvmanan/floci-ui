@@ -1,3 +1,4 @@
+import json
 from uuid import UUID
 from typing import Any
 
@@ -17,6 +18,12 @@ class QueueCreate(BaseModel):
     queue_name: str
     fifo: bool = False
     visibility_timeout: int = 30
+
+
+class QueueAttributesUpdate(BaseModel):
+    visibility_timeout: int | None = None
+    delay_seconds: int | None = None
+    receive_wait_time: int | None = None
 
 
 class SendMessage(BaseModel):
@@ -115,3 +122,45 @@ async def purge_queue(instance_id: UUID, name: str, db: AsyncSession = Depends(g
     client = _rb.get_client(inst, "sqs")
     url_resp = client.get_queue_url(QueueName=name)
     client.purge_queue(QueueUrl=url_resp["QueueUrl"])
+
+
+@router.get("/queues/{name}/attributes", dependencies=[RequireViewer])
+async def get_queue_attributes(instance_id: UUID, name: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sqs")
+    url_resp = client.get_queue_url(QueueName=name)
+    url = url_resp["QueueUrl"]
+    attrs = client.get_queue_attributes(QueueUrl=url, AttributeNames=["All"])["Attributes"]
+    redrive = attrs.get("RedrivePolicy")
+    redrive_parsed = json.loads(redrive) if redrive else None
+    return {
+        "arn": attrs.get("QueueArn", ""),
+        "visibility_timeout": int(attrs.get("VisibilityTimeout", 30)),
+        "delay_seconds": int(attrs.get("DelaySeconds", 0)),
+        "receive_wait_time": int(attrs.get("ReceiveMessageWaitTimeSeconds", 0)),
+        "max_message_size": int(attrs.get("MaximumMessageSize", 262144)),
+        "retention_period": int(attrs.get("MessageRetentionPeriod", 345600)),
+        "approximate_message_count": int(attrs.get("ApproximateNumberOfMessages", 0)),
+        "dlq_arn": redrive_parsed.get("deadLetterTargetArn") if redrive_parsed else None,
+        "max_receive_count": redrive_parsed.get("maxReceiveCount") if redrive_parsed else None,
+    }
+
+
+@router.put("/queues/{name}/attributes", dependencies=[RequireOperator])
+async def set_queue_attributes(
+    instance_id: UUID, name: str, body: QueueAttributesUpdate, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sqs")
+    url_resp = client.get_queue_url(QueueName=name)
+    url = url_resp["QueueUrl"]
+    attrs: dict = {}
+    if body.visibility_timeout is not None:
+        attrs["VisibilityTimeout"] = str(body.visibility_timeout)
+    if body.delay_seconds is not None:
+        attrs["DelaySeconds"] = str(body.delay_seconds)
+    if body.receive_wait_time is not None:
+        attrs["ReceiveMessageWaitTimeSeconds"] = str(body.receive_wait_time)
+    if attrs:
+        client.set_queue_attributes(QueueUrl=url, Attributes=attrs)
+    return {"success": True}

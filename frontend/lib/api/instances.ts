@@ -150,6 +150,10 @@ export const instancesApi = {
     api.get(`/instances/${id}/resources/sqs/queues/${name}/receive`, { params: { count } }),
   purgeQueue: (id: string, name: string) =>
     api.delete(`/instances/${id}/resources/sqs/queues/${name}/purge`),
+  getQueueAttributes: (id: string, name: string) =>
+    api.get(`/instances/${id}/resources/sqs/queues/${name}/attributes`),
+  setQueueAttributes: (id: string, name: string, body: Record<string, number>) =>
+    api.put(`/instances/${id}/resources/sqs/queues/${name}/attributes`, body),
 
   // SNS
   listTopics: (id: string) => api.get(`/instances/${id}/resources/sns/topics`),
@@ -159,6 +163,14 @@ export const instancesApi = {
     api.delete(`/instances/${id}/resources/sns/topics/${encodeURIComponent(arn)}`),
   publishMessage: (id: string, arn: string, message: string) =>
     api.post(`/instances/${id}/resources/sns/topics/${encodeURIComponent(arn)}/publish`, { message }),
+  subscribeToTopic: (id: string, arn: string, body: { protocol: string; endpoint: string }) =>
+    api.post(`/instances/${id}/resources/sns/topics/${encodeURIComponent(arn)}/subscribe`, body),
+  unsubscribe: (id: string, subscriptionArn: string) =>
+    api.delete(`/instances/${id}/resources/sns/subscriptions/${encodeURIComponent(subscriptionArn)}`),
+  listSubscriptions: (id: string) =>
+    api.get(`/instances/${id}/resources/sns/subscriptions`),
+  getTopicAttributes: (id: string, arn: string) =>
+    api.get(`/instances/${id}/resources/sns/topics/${encodeURIComponent(arn)}/attributes`),
 
   // Kinesis
   listStreams: (id: string) => api.get(`/instances/${id}/resources/kinesis/streams`),
@@ -166,11 +178,29 @@ export const instancesApi = {
     api.post(`/instances/${id}/resources/kinesis/streams`, { stream_name, shard_count }),
   deleteStream: (id: string, name: string) =>
     api.delete(`/instances/${id}/resources/kinesis/streams/${name}`),
+  describeStream: (id: string, name: string) =>
+    api.get(`/instances/${id}/resources/kinesis/streams/${name}`),
+  listShards: (id: string, name: string) =>
+    api.get(`/instances/${id}/resources/kinesis/streams/${name}/shards`),
+  putRecord: (id: string, name: string, body: { data_b64: string; partition_key: string }) =>
+    api.post(`/instances/${id}/resources/kinesis/streams/${name}/records`, body),
 
   // EventBridge
   listBuses: (id: string) => api.get(`/instances/${id}/resources/eventbridge/buses`),
   createBus: (id: string, bus_name: string) =>
     api.post(`/instances/${id}/resources/eventbridge/buses`, { bus_name }),
+  listRules: (id: string, busName: string) =>
+    api.get(`/instances/${id}/resources/eventbridge/buses/${busName}/rules`),
+  createEventBridgeRule: (id: string, busName: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/eventbridge/buses/${busName}/rules`, body),
+  deleteEventBridgeRule: (id: string, busName: string, ruleName: string) =>
+    api.delete(`/instances/${id}/resources/eventbridge/buses/${busName}/rules/${ruleName}`),
+  listRuleTargets: (id: string, busName: string, ruleName: string) =>
+    api.get(`/instances/${id}/resources/eventbridge/buses/${busName}/rules/${ruleName}/targets`),
+  putRuleTargets: (id: string, busName: string, ruleName: string, targets: unknown[]) =>
+    api.post(`/instances/${id}/resources/eventbridge/buses/${busName}/rules/${ruleName}/targets`, { targets }),
+  putEventBridgeEvent: (id: string, busName: string, body: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/eventbridge/buses/${busName}/events`, body),
 
   // Cognito
   listUserPools: (id: string) => api.get(`/instances/${id}/resources/cognito/user-pools`),
@@ -178,6 +208,20 @@ export const instancesApi = {
     api.get(`/instances/${id}/resources/cognito/user-pools/${pool_id}/users`),
   createUser: (id: string, pool_id: string, body: { username: string; email: string; temp_password: string }) =>
     api.post(`/instances/${id}/resources/cognito/user-pools/${pool_id}/users`, body),
+  describeUserPool: (id: string, poolId: string) =>
+    api.get(`/instances/${id}/resources/cognito/user-pools/${poolId}`),
+  enableUser: (id: string, poolId: string, username: string) =>
+    api.post(`/instances/${id}/resources/cognito/user-pools/${poolId}/users/${username}/enable`),
+  disableUser: (id: string, poolId: string, username: string) =>
+    api.post(`/instances/${id}/resources/cognito/user-pools/${poolId}/users/${username}/disable`),
+  resetUserPassword: (id: string, poolId: string, username: string) =>
+    api.post(`/instances/${id}/resources/cognito/user-pools/${poolId}/users/${username}/reset-password`),
+  updateUserAttributes: (id: string, poolId: string, username: string, attributes: { Name: string; Value: string }[]) =>
+    api.put(`/instances/${id}/resources/cognito/user-pools/${poolId}/users/${username}`, { attributes }),
+  listAppClients: (id: string, poolId: string) =>
+    api.get(`/instances/${id}/resources/cognito/user-pools/${poolId}/app-clients`),
+  createAppClient: (id: string, poolId: string, body: { client_name: string; generate_secret: boolean }) =>
+    api.post(`/instances/${id}/resources/cognito/user-pools/${poolId}/app-clients`, body),
 
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
