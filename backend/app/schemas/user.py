@@ -1,13 +1,13 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from app.models.user import UserRole
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: str
     full_name: str | None = None
     role: UserRole = UserRole.VIEWER
     password: str
@@ -28,8 +28,7 @@ class UserResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class UsersListResponse(BaseModel):

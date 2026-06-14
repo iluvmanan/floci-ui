@@ -37,7 +37,7 @@ import { Badge } from "@/components/ui/badge"
 
 const mainNav = [
   { href: "/", icon: Home, label: "Dashboard" },
-  { href: "/instances", icon: Server, label: "Instances" },
+  { href: "/", icon: Server, label: "Instances" },
 ]
 
 const settingsNav = [
@@ -68,7 +68,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-6 w-6 text-primary" />
+          <LayoutDashboard className="h-6 w-6 text-primary" aria-hidden="true" />
           <span className="font-semibold text-base">Floci Console</span>
         </div>
       </SidebarHeader>

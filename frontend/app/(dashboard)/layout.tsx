@@ -4,6 +4,8 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth/AuthProvider"
 import { AppSidebar } from "@/components/layout/AppSidebar"
+import { BreadcrumbNav } from "@/components/layout/BreadcrumbNav"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -33,8 +35,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-14 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="h-4" />
+          <SidebarTrigger className="-ml-1" aria-label="Toggle sidebar" />
+          <Separator orientation="vertical" className="h-4" aria-hidden="true" />
+          <BreadcrumbNav />
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
         </header>
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>

@@ -5,6 +5,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.dependencies import RequireViewer
 from app.models.instance import FlociInstance
 from app.models.user import User
 
@@ -29,7 +30,7 @@ async def health(db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/info")
+@router.get("/info", dependencies=[RequireViewer])
 async def info(db: AsyncSession = Depends(get_db)):
     user_count = (await db.execute(select(func.count()).select_from(User))).scalar()
     instance_count = (await db.execute(select(func.count()).select_from(FlociInstance))).scalar()

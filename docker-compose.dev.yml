@@ -11,8 +11,8 @@ services:
       - ./backend:/app
     environment:
       DATABASE_URL: postgresql+asyncpg://floci:floci_secret@postgres:5432/floci_console
-      JWT_SECRET: dev-jwt-secret-change-in-production
-      ENCRYPTION_KEY: dev-encryption-key-32-chars-long!
+      JWT_SECRET: 0134f79c85a0a3e46504d75016f849823ff7b72de7b6ff7edca65ea085fa5640
+      ENCRYPTION_KEY: AoBY1ZcsaQysRfWMriqAEsK9lVe6PKePlNapaJ6Jht0=
       FIRST_SUPERADMIN_EMAIL: admin@example.com
       FIRST_SUPERADMIN_PASSWORD: admin123
       BACKEND_CORS_ORIGINS: http://localhost:3000

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from fastapi import Cookie
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,7 +35,7 @@ async def login(body: LoginRequest, response: Response, db: AsyncSession = Depen
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    access_token = create_access_token(str(user.id), user.role.value)
+    access_token = create_access_token(str(user.id), user.role.value, user.email)
     refresh_token = create_refresh_token(str(user.id))
 
     response.set_cookie("access_token", access_token, max_age=900, **COOKIE_OPTS)
@@ -73,14 +73,13 @@ async def refresh_token(
     except ValueError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
-    from uuid import UUID
     result = await db.execute(select(User).where(User.id == UUID(payload["sub"])))
     user = result.scalar_one_or_none()
 
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
-    new_access = create_access_token(str(user.id), user.role.value)
+    new_access = create_access_token(str(user.id), user.role.value, user.email)
     new_refresh = create_refresh_token(str(user.id))
 
     response.set_cookie("access_token", new_access, max_age=900, **COOKIE_OPTS)
