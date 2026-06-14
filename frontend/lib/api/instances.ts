@@ -73,6 +73,28 @@ export const instancesApi = {
     }),
   deleteObject: (id: string, bucket: string, key: string) =>
     api.delete(`/instances/${id}/resources/s3/buckets/${encodeURIComponent(bucket)}/objects/${encodeURIComponent(key)}`),
+  downloadObject: (id: string, bucket: string, key: string) =>
+    api.get(`/instances/${id}/resources/s3/buckets/${bucket}/objects/${encodeURIComponent(key)}/download`),
+  uploadUrl: (id: string, bucket: string, key: string) =>
+    api.put(`/instances/${id}/resources/s3/buckets/${bucket}/upload-url`, { key }),
+  getBucketVersioning: (id: string, bucket: string) =>
+    api.get(`/instances/${id}/resources/s3/buckets/${bucket}/versioning`),
+  setBucketVersioning: (id: string, bucket: string, enabled: boolean) =>
+    api.put(`/instances/${id}/resources/s3/buckets/${bucket}/versioning`, { enabled }),
+  getBucketPolicy: (id: string, bucket: string) =>
+    api.get(`/instances/${id}/resources/s3/buckets/${bucket}/policy`),
+  setBucketPolicy: (id: string, bucket: string, policy: string) =>
+    api.put(`/instances/${id}/resources/s3/buckets/${bucket}/policy`, { policy }),
+  deleteBucketPolicy: (id: string, bucket: string) =>
+    api.delete(`/instances/${id}/resources/s3/buckets/${bucket}/policy`),
+  getBucketCors: (id: string, bucket: string) =>
+    api.get(`/instances/${id}/resources/s3/buckets/${bucket}/cors`),
+  setBucketCors: (id: string, bucket: string, rules: unknown[]) =>
+    api.put(`/instances/${id}/resources/s3/buckets/${bucket}/cors`, { rules }),
+  getBucketTags: (id: string, bucket: string) =>
+    api.get(`/instances/${id}/resources/s3/buckets/${bucket}/tagging`),
+  setBucketTags: (id: string, bucket: string, tags: { Key: string; Value: string }[]) =>
+    api.put(`/instances/${id}/resources/s3/buckets/${bucket}/tagging`, { tags }),
 
   // DynamoDB
   listTables: (id: string) => api.get(`/instances/${id}/resources/dynamodb/tables`),
