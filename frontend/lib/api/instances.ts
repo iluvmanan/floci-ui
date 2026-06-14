@@ -106,6 +106,16 @@ export const instancesApi = {
     api.post(`/instances/${id}/resources/dynamodb/tables/${table}/scan`, body),
   putItem: (id: string, table: string, item: object) =>
     api.put(`/instances/${id}/resources/dynamodb/tables/${table}/items`, { item }),
+  queryTable: (id: string, table: string, body: { key_condition: string; expression_values: Record<string, unknown>; index_name?: string; limit?: number }) =>
+    api.post(`/instances/${id}/resources/dynamodb/tables/${table}/query`, body),
+  deleteItem: (id: string, table: string, key: Record<string, unknown>) =>
+    api.delete(`/instances/${id}/resources/dynamodb/tables/${table}/items`, { data: { key } }),
+  describeTable: (id: string, table: string) =>
+    api.get(`/instances/${id}/resources/dynamodb/tables/${table}`),
+  getItem: (id: string, table: string, key: Record<string, unknown>) =>
+    api.post(`/instances/${id}/resources/dynamodb/tables/${table}/get-item`, { key }),
+  updateTableSettings: (id: string, table: string, body: { billing_mode: string; read_capacity?: number; write_capacity?: number }) =>
+    api.put(`/instances/${id}/resources/dynamodb/tables/${table}/settings`, body),
 
   // Lambda
   listFunctions: (id: string) => api.get(`/instances/${id}/resources/lambda/functions`),

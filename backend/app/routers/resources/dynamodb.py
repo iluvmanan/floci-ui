@@ -37,6 +37,16 @@ class DeleteItemRequest(BaseModel):
     key: dict[str, Any]
 
 
+class GetItemRequest(BaseModel):
+    key: dict[str, Any]
+
+
+class UpdateSettingsRequest(BaseModel):
+    billing_mode: str
+    read_capacity: int | None = None
+    write_capacity: int | None = None
+
+
 @router.get("/tables", dependencies=[RequireViewer])
 async def list_tables(instance_id: UUID, db: AsyncSession = Depends(get_db)):
     inst = await get_instance(instance_id, db)
@@ -126,3 +136,52 @@ async def delete_item(
     inst = await get_instance(instance_id, db)
     client = _rb.get_client(inst, "dynamodb")
     client.delete_item(TableName=table, Key=body.key)
+
+
+@router.get("/tables/{table}", dependencies=[RequireViewer])
+async def describe_table(instance_id: UUID, table: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "dynamodb")
+    resp = client.describe_table(TableName=table)
+    t = resp["Table"]
+    return {
+        "name": t["TableName"],
+        "status": t["TableStatus"],
+        "item_count": t.get("ItemCount", 0),
+        "size_bytes": t.get("TableSizeBytes", 0),
+        "billing_mode": t.get("BillingModeSummary", {}).get("BillingMode", "PROVISIONED"),
+        "key_schema": t["KeySchema"],
+        "attribute_definitions": t["AttributeDefinitions"],
+        "gsi": [{"name": g["IndexName"], "key_schema": g["KeySchema"], "projection": g["Projection"]} for g in t.get("GlobalSecondaryIndexes", [])],
+        "lsi": [{"name": l["IndexName"], "key_schema": l["KeySchema"]} for l in t.get("LocalSecondaryIndexes", [])],
+        "stream_arn": t.get("LatestStreamArn"),
+        "created_at": str(t.get("CreationDateTime", "")),
+        "read_capacity": t.get("ProvisionedThroughput", {}).get("ReadCapacityUnits"),
+        "write_capacity": t.get("ProvisionedThroughput", {}).get("WriteCapacityUnits"),
+    }
+
+
+@router.post("/tables/{table}/get-item", dependencies=[RequireViewer])
+async def get_item(
+    instance_id: UUID, table: str, body: GetItemRequest, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "dynamodb")
+    resp = client.get_item(TableName=table, Key=body.key)
+    return {"item": resp.get("Item")}
+
+
+@router.put("/tables/{table}/settings", dependencies=[RequireOperator])
+async def update_table_settings(
+    instance_id: UUID, table: str, body: UpdateSettingsRequest, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "dynamodb")
+    kwargs: dict = {"TableName": table, "BillingMode": body.billing_mode}
+    if body.billing_mode == "PROVISIONED" and body.read_capacity and body.write_capacity:
+        kwargs["ProvisionedThroughput"] = {
+            "ReadCapacityUnits": body.read_capacity,
+            "WriteCapacityUnits": body.write_capacity,
+        }
+    client.update_table(**kwargs)
+    return {"success": True}
