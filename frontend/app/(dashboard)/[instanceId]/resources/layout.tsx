@@ -213,7 +213,7 @@ export default function ResourcesLayout({ children }: { children: React.ReactNod
 
             if (visibleServices.length === 0) return null
 
-            const isCollapsed = collapsed[group.label] ?? false
+            const isCollapsed = query.trim() ? false : (collapsed[group.label] ?? false)
 
             return (
               <div key={group.label}>
@@ -232,7 +232,7 @@ export default function ResourcesLayout({ children }: { children: React.ReactNod
                 {!isCollapsed && (
                   <ul className="mt-0.5 space-y-0.5">
                     {visibleServices.map(({ label, href, icon: Icon }) => {
-                      const active = pathname.includes(`/resources/${href}`)
+                      const active = pathname.includes(`/resources/${href}/`) || pathname.endsWith(`/resources/${href}`)
                       return (
                         <li key={href}>
                           <Link
