@@ -567,6 +567,65 @@ export const instancesApi = {
   createTransferUser: (id: string, serverId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/transfer/servers/${serverId}/users`, body),
   deleteTransferUser: (id: string, serverId: string, username: string) => api.delete(`/instances/${id}/resources/transfer/servers/${serverId}/users/${username}`),
 
+  // Athena
+  listAthenaWorkgroups: (id: string) => api.get(`/instances/${id}/resources/athena/workgroups`),
+  createAthenaWorkgroup: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/athena/workgroups`, body),
+  deleteAthenaWorkgroup: (id: string, name: string) => api.delete(`/instances/${id}/resources/athena/workgroups/${name}`),
+  listAthenaDatabases: (id: string) => api.get(`/instances/${id}/resources/athena/databases`),
+  runAthenaQuery: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/athena/queries`, body),
+  getQueryExecution: (id: string, queryId: string) => api.get(`/instances/${id}/resources/athena/queries/${queryId}`),
+  getQueryResults: (id: string, queryId: string) => api.get(`/instances/${id}/resources/athena/queries/${queryId}/results`),
+  listQueryHistory: (id: string, workgroup?: string) => api.get(`/instances/${id}/resources/athena/query-history`, { params: workgroup ? { workgroup } : {} }),
+  cancelQuery: (id: string, queryId: string) => api.post(`/instances/${id}/resources/athena/queries/${queryId}/cancel`),
+
+  // Glue
+  listGlueDatabases: (id: string) => api.get(`/instances/${id}/resources/glue/databases`),
+  createGlueDatabase: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/glue/databases`, body),
+  deleteGlueDatabase: (id: string, name: string) => api.delete(`/instances/${id}/resources/glue/databases/${name}`),
+  listGlueTables: (id: string, dbName: string) => api.get(`/instances/${id}/resources/glue/databases/${dbName}/tables`),
+  listGlueCrawlers: (id: string) => api.get(`/instances/${id}/resources/glue/crawlers`),
+  createGlueCrawler: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/glue/crawlers`, body),
+  deleteGlueCrawler: (id: string, name: string) => api.delete(`/instances/${id}/resources/glue/crawlers/${name}`),
+  startGlueCrawler: (id: string, name: string) => api.post(`/instances/${id}/resources/glue/crawlers/${name}/start`),
+  stopGlueCrawler: (id: string, name: string) => api.post(`/instances/${id}/resources/glue/crawlers/${name}/stop`),
+  listGlueJobs: (id: string) => api.get(`/instances/${id}/resources/glue/jobs`),
+  createGlueJob: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/glue/jobs`, body),
+  deleteGlueJob: (id: string, name: string) => api.delete(`/instances/${id}/resources/glue/jobs/${name}`),
+  startGlueJob: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/glue/jobs/${name}/start`, body),
+  getJobRuns: (id: string, name: string) => api.get(`/instances/${id}/resources/glue/jobs/${name}/runs`),
+
+  // Data Firehose
+  listFirehoseStreams: (id: string) => api.get(`/instances/${id}/resources/firehose/delivery-streams`),
+  createFirehoseStream: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/firehose/delivery-streams`, body),
+  deleteFirehoseStream: (id: string, name: string) => api.delete(`/instances/${id}/resources/firehose/delivery-streams/${name}`),
+  firehosePutRecord: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/firehose/delivery-streams/${name}/records`, body),
+  firehosePutRecordBatch: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/firehose/delivery-streams/${name}/records/batch`, body),
+
+  // OpenSearch
+  listOpenSearchDomains: (id: string) => api.get(`/instances/${id}/resources/opensearch/domains`),
+  createOpenSearchDomain: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/opensearch/domains`, body),
+  deleteOpenSearchDomain: (id: string, name: string) => api.delete(`/instances/${id}/resources/opensearch/domains/${name}`),
+  describeOpenSearchDomain: (id: string, name: string) => api.get(`/instances/${id}/resources/opensearch/domains/${name}`),
+
+  // Bedrock
+  listBedrockModels: (id: string) => api.get(`/instances/${id}/resources/bedrock/models`),
+  invokeBedrockModel: (id: string, modelId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/bedrock/models/${modelId}/invoke`, body),
+
+  // Textract
+  textractDetectText: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/textract/documents/text`, body),
+  textractAnalyzeForms: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/textract/documents/forms`, body),
+  textractAnalyzeTables: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/textract/documents/tables`, body),
+  textractAnalyzeQueries: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/textract/documents/queries`, body),
+  textractStartJob: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/textract/jobs/start`, body),
+  textractGetJob: (id: string, jobId: string) => api.get(`/instances/${id}/resources/textract/jobs/${jobId}`),
+
+  // Transcribe
+  startTranscriptionJob: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/transcribe/jobs`, body),
+  listTranscriptionJobs: (id: string) => api.get(`/instances/${id}/resources/transcribe/jobs`),
+  getTranscriptionJob: (id: string, name: string) => api.get(`/instances/${id}/resources/transcribe/jobs/${name}`),
+  deleteTranscriptionJob: (id: string, name: string) => api.delete(`/instances/${id}/resources/transcribe/jobs/${name}`),
+  getTranscript: (id: string, name: string) => api.get(`/instances/${id}/resources/transcribe/jobs/${name}/transcript`),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
