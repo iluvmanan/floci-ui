@@ -287,6 +287,74 @@ export const instancesApi = {
   listSubnets: (id: string) =>
     api.get(`/instances/${id}/resources/ec2/subnets`),
 
+  // IAM
+  listIAMUsers: (id: string) => api.get(`/instances/${id}/resources/iam/users`),
+  createIAMUser: (id: string, username: string) => api.post(`/instances/${id}/resources/iam/users`, { username }),
+  deleteIAMUser: (id: string, username: string) => api.delete(`/instances/${id}/resources/iam/users/${username}`),
+  listUserPolicies: (id: string, username: string) => api.get(`/instances/${id}/resources/iam/users/${username}/policies`),
+  attachUserPolicy: (id: string, username: string, policyArn: string) => api.post(`/instances/${id}/resources/iam/users/${username}/policies`, { policy_arn: policyArn }),
+  detachUserPolicy: (id: string, username: string, policyArn: string) => api.delete(`/instances/${id}/resources/iam/users/${username}/policies/${encodeURIComponent(policyArn)}`),
+  listAccessKeys: (id: string, username: string) => api.get(`/instances/${id}/resources/iam/users/${username}/access-keys`),
+  createAccessKey: (id: string, username: string) => api.post(`/instances/${id}/resources/iam/users/${username}/access-keys`),
+  deleteAccessKey: (id: string, username: string, keyId: string) => api.delete(`/instances/${id}/resources/iam/users/${username}/access-keys/${keyId}`),
+  listIAMRoles: (id: string) => api.get(`/instances/${id}/resources/iam/roles`),
+  createIAMRole: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/iam/roles`, body),
+  deleteIAMRole: (id: string, name: string) => api.delete(`/instances/${id}/resources/iam/roles/${name}`),
+  listRolePolicies: (id: string, name: string) => api.get(`/instances/${id}/resources/iam/roles/${name}/policies`),
+  attachRolePolicy: (id: string, name: string, policyArn: string) => api.post(`/instances/${id}/resources/iam/roles/${name}/policies`, { policy_arn: policyArn }),
+  detachRolePolicy: (id: string, name: string, policyArn: string) => api.delete(`/instances/${id}/resources/iam/roles/${name}/policies/${encodeURIComponent(policyArn)}`),
+  listIAMPolicies: (id: string) => api.get(`/instances/${id}/resources/iam/policies`),
+  createIAMPolicy: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/iam/policies`, body),
+  deleteIAMPolicy: (id: string, policyArn: string) => api.delete(`/instances/${id}/resources/iam/policies/${encodeURIComponent(policyArn)}`),
+  listIAMGroups: (id: string) => api.get(`/instances/${id}/resources/iam/groups`),
+  createIAMGroup: (id: string, name: string) => api.post(`/instances/${id}/resources/iam/groups`, { name }),
+  deleteIAMGroup: (id: string, name: string) => api.delete(`/instances/${id}/resources/iam/groups/${name}`),
+  listGroupMembers: (id: string, name: string) => api.get(`/instances/${id}/resources/iam/groups/${name}/users`),
+  addUserToGroup: (id: string, name: string, username: string) => api.post(`/instances/${id}/resources/iam/groups/${name}/users`, { username }),
+  removeUserFromGroup: (id: string, name: string, username: string) => api.delete(`/instances/${id}/resources/iam/groups/${name}/users/${username}`),
+
+  // API Gateway v1
+  listRestAPIs: (id: string) => api.get(`/instances/${id}/resources/apigw/rest-apis`),
+  createRestAPI: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigw/rest-apis`, body),
+  deleteRestAPI: (id: string, apiId: string) => api.delete(`/instances/${id}/resources/apigw/rest-apis/${apiId}`),
+  listAPIResources: (id: string, apiId: string) => api.get(`/instances/${id}/resources/apigw/rest-apis/${apiId}/resources`),
+  createAPIResource: (id: string, apiId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigw/rest-apis/${apiId}/resources`, body),
+  createAPIDeployment: (id: string, apiId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigw/rest-apis/${apiId}/deployments`, body),
+  listAPIStages: (id: string, apiId: string) => api.get(`/instances/${id}/resources/apigw/rest-apis/${apiId}/stages`),
+  listAPIKeys: (id: string) => api.get(`/instances/${id}/resources/apigw/api-keys`),
+  createAPIKey: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigw/api-keys`, body),
+  deleteAPIKey: (id: string, keyId: string) => api.delete(`/instances/${id}/resources/apigw/api-keys/${keyId}`),
+
+  // API Gateway v2
+  listAPIsv2: (id: string) => api.get(`/instances/${id}/resources/apigwv2/apis`),
+  createAPIv2: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigwv2/apis`, body),
+  deleteAPIv2: (id: string, apiId: string) => api.delete(`/instances/${id}/resources/apigwv2/apis/${apiId}`),
+  listRoutesv2: (id: string, apiId: string) => api.get(`/instances/${id}/resources/apigwv2/apis/${apiId}/routes`),
+  createRouteV2: (id: string, apiId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigwv2/apis/${apiId}/routes`, body),
+  listIntegrationsV2: (id: string, apiId: string) => api.get(`/instances/${id}/resources/apigwv2/apis/${apiId}/integrations`),
+  createIntegrationV2: (id: string, apiId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/apigwv2/apis/${apiId}/integrations`, body),
+  listStagesV2: (id: string, apiId: string) => api.get(`/instances/${id}/resources/apigwv2/apis/${apiId}/stages`),
+  createDeploymentV2: (id: string, apiId: string, stageName: string) => api.post(`/instances/${id}/resources/apigwv2/apis/${apiId}/deployments`, { stage_name: stageName }),
+
+  // RDS
+  listRDSInstances: (id: string) => api.get(`/instances/${id}/resources/rds/instances`),
+  createRDSInstance: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/rds/instances`, body),
+  startRDSInstance: (id: string, dbId: string) => api.post(`/instances/${id}/resources/rds/instances/${dbId}/start`),
+  stopRDSInstance: (id: string, dbId: string) => api.post(`/instances/${id}/resources/rds/instances/${dbId}/stop`),
+  deleteRDSInstance: (id: string, dbId: string) => api.delete(`/instances/${id}/resources/rds/instances/${dbId}`),
+  listRDSSnapshots: (id: string) => api.get(`/instances/${id}/resources/rds/snapshots`),
+  createRDSSnapshot: (id: string, dbId: string, snapshotId: string) => api.post(`/instances/${id}/resources/rds/instances/${dbId}/snapshots`, { snapshot_identifier: snapshotId }),
+  listRDSClusters: (id: string) => api.get(`/instances/${id}/resources/rds/clusters`),
+
+  // ElastiCache
+  listCacheClusters: (id: string) => api.get(`/instances/${id}/resources/elasticache/clusters`),
+  createCacheCluster: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elasticache/clusters`, body),
+  deleteCacheCluster: (id: string, clusterId: string) => api.delete(`/instances/${id}/resources/elasticache/clusters/${clusterId}`),
+  rebootCacheCluster: (id: string, clusterId: string, nodeIds: string[]) => api.post(`/instances/${id}/resources/elasticache/clusters/${clusterId}/reboot`, { node_ids: nodeIds }),
+  listReplicationGroups: (id: string) => api.get(`/instances/${id}/resources/elasticache/replication-groups`),
+  createReplicationGroup: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elasticache/replication-groups`, body),
+  deleteReplicationGroup: (id: string, groupId: string) => api.delete(`/instances/${id}/resources/elasticache/replication-groups/${groupId}`),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
