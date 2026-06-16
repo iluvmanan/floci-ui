@@ -355,6 +355,49 @@ export const instancesApi = {
   createReplicationGroup: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elasticache/replication-groups`, body),
   deleteReplicationGroup: (id: string, groupId: string) => api.delete(`/instances/${id}/resources/elasticache/replication-groups/${groupId}`),
 
+  // Neptune
+  listNeptuneClusters: (id: string) => api.get(`/instances/${id}/resources/neptune/clusters`),
+  createNeptuneCluster: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/neptune/clusters`, body),
+  deleteNeptuneCluster: (id: string, clusterId: string) => api.delete(`/instances/${id}/resources/neptune/clusters/${clusterId}`),
+  listNeptuneInstances: (id: string) => api.get(`/instances/${id}/resources/neptune/instances`),
+  createNeptuneInstance: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/neptune/instances`, body),
+  deleteNeptuneInstance: (id: string, instanceId: string) => api.delete(`/instances/${id}/resources/neptune/instances/${instanceId}`),
+
+  // Secrets Manager
+  listSecrets: (id: string) => api.get(`/instances/${id}/resources/secrets/secrets`),
+  createSecret: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/secrets/secrets`, body),
+  describeSecret: (id: string, name: string) => api.get(`/instances/${id}/resources/secrets/secrets/${encodeURIComponent(name)}`),
+  getSecretValue: (id: string, name: string) => api.get(`/instances/${id}/resources/secrets/secrets/${encodeURIComponent(name)}/value`),
+  updateSecret: (id: string, name: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/secrets/secrets/${encodeURIComponent(name)}`, body),
+  deleteSecret: (id: string, name: string) => api.delete(`/instances/${id}/resources/secrets/secrets/${encodeURIComponent(name)}`),
+  rotateSecret: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/secrets/secrets/${encodeURIComponent(name)}/rotate`, body),
+
+  // SSM Parameter Store
+  listParameters: (id: string) => api.get(`/instances/${id}/resources/ssm/parameters`),
+  getParametersByPath: (id: string, path: string) => api.get(`/instances/${id}/resources/ssm/parameters/by-path`, { params: { path } }),
+  createParameter: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ssm/parameters`, body),
+  getParameterValue: (id: string, name: string) => api.get(`/instances/${id}/resources/ssm/parameters/${encodeURIComponent(name)}/value`),
+  updateParameter: (id: string, name: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/ssm/parameters/${encodeURIComponent(name)}`, body),
+  deleteParameter: (id: string, name: string) => api.delete(`/instances/${id}/resources/ssm/parameters/${encodeURIComponent(name)}`),
+
+  // KMS
+  listKMSKeys: (id: string) => api.get(`/instances/${id}/resources/kms/keys`),
+  createKMSKey: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/kms/keys`, body),
+  enableKMSKey: (id: string, keyId: string) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/enable`),
+  disableKMSKey: (id: string, keyId: string) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/disable`),
+  scheduleKeyDeletion: (id: string, keyId: string, days: number) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/schedule-deletion`, { pending_window_in_days: days }),
+  cancelKeyDeletion: (id: string, keyId: string) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/cancel-deletion`),
+  listKMSAliases: (id: string) => api.get(`/instances/${id}/resources/kms/aliases`),
+  createKMSAlias: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/kms/aliases`, body),
+  deleteKMSAlias: (id: string, aliasName: string) => api.delete(`/instances/${id}/resources/kms/aliases/${encodeURIComponent(aliasName)}`),
+  kmsEncrypt: (id: string, keyId: string, dataBase64: string) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/encrypt`, { data_base64: dataBase64 }),
+  kmsDecrypt: (id: string, keyId: string, dataBase64: string) => api.post(`/instances/${id}/resources/kms/keys/${keyId}/decrypt`, { data_base64: dataBase64 }),
+
+  // STS
+  getCallerIdentity: (id: string) => api.get(`/instances/${id}/resources/sts/caller-identity`),
+  assumeRole: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/sts/assume-role`, body),
+  getFederationToken: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/sts/federation-token`, body),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
