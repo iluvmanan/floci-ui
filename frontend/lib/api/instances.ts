@@ -455,6 +455,57 @@ export const instancesApi = {
   upsertRecord: (id: string, zoneId: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`, body),
   deleteRecord: (id: string, zoneId: string, body: Record<string, unknown>) => api.delete(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`, { data: body }),
 
+  // CloudFront
+  listDistributions: (id: string) => api.get(`/instances/${id}/resources/cloudfront/distributions`),
+  createDistribution: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudfront/distributions`, body),
+  getDistribution: (id: string, distId: string) => api.get(`/instances/${id}/resources/cloudfront/distributions/${distId}`),
+  updateDistribution: (id: string, distId: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/cloudfront/distributions/${distId}`, body),
+  deleteDistribution: (id: string, distId: string) => api.delete(`/instances/${id}/resources/cloudfront/distributions/${distId}`),
+  createInvalidation: (id: string, distId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudfront/distributions/${distId}/invalidations`, body),
+  listInvalidations: (id: string, distId: string) => api.get(`/instances/${id}/resources/cloudfront/distributions/${distId}/invalidations`),
+
+  // ELB v2
+  listLoadBalancers: (id: string) => api.get(`/instances/${id}/resources/elbv2/load-balancers`),
+  createLoadBalancer: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elbv2/load-balancers`, body),
+  deleteLoadBalancer: (id: string, lbArn: string) => api.delete(`/instances/${id}/resources/elbv2/load-balancers/${encodeURIComponent(lbArn)}`),
+  listTargetGroups: (id: string) => api.get(`/instances/${id}/resources/elbv2/target-groups`),
+  createTargetGroup: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elbv2/target-groups`, body),
+  deleteTargetGroup: (id: string, tgArn: string) => api.delete(`/instances/${id}/resources/elbv2/target-groups/${encodeURIComponent(tgArn)}`),
+  registerTargets: (id: string, tgArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elbv2/target-groups/${encodeURIComponent(tgArn)}/register`, body),
+  deregisterTargets: (id: string, tgArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elbv2/target-groups/${encodeURIComponent(tgArn)}/deregister`, body),
+  getTargetHealth: (id: string, tgArn: string) => api.get(`/instances/${id}/resources/elbv2/target-groups/${encodeURIComponent(tgArn)}/health`),
+  listListeners: (id: string, lbArn: string) => api.get(`/instances/${id}/resources/elbv2/load-balancers/${encodeURIComponent(lbArn)}/listeners`),
+  createListener: (id: string, lbArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/elbv2/load-balancers/${encodeURIComponent(lbArn)}/listeners`, body),
+  deleteListener: (id: string, listenerArn: string) => api.delete(`/instances/${id}/resources/elbv2/listeners/${encodeURIComponent(listenerArn)}`),
+
+  // ACM
+  listCertificates: (id: string) => api.get(`/instances/${id}/resources/acm/certificates`),
+  requestCertificate: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/acm/certificates`, body),
+  deleteCertificate: (id: string, certArn: string) => api.delete(`/instances/${id}/resources/acm/certificates/${encodeURIComponent(certArn)}`),
+  describeCertificate: (id: string, certArn: string) => api.get(`/instances/${id}/resources/acm/certificates/${encodeURIComponent(certArn)}`),
+  resendValidationEmail: (id: string, certArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/acm/certificates/${encodeURIComponent(certArn)}/resend-validation`, body),
+
+  // CloudFormation
+  listStacks: (id: string) => api.get(`/instances/${id}/resources/cfn/stacks`),
+  createStack: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cfn/stacks`, body),
+  updateStack: (id: string, name: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/cfn/stacks/${name}`, body),
+  deleteStack: (id: string, name: string) => api.delete(`/instances/${id}/resources/cfn/stacks/${name}`),
+  describeStack: (id: string, name: string) => api.get(`/instances/${id}/resources/cfn/stacks/${name}`),
+  getStackEvents: (id: string, name: string) => api.get(`/instances/${id}/resources/cfn/stacks/${name}/events`),
+  getStackResources: (id: string, name: string) => api.get(`/instances/${id}/resources/cfn/stacks/${name}/resources`),
+  getStackTemplate: (id: string, name: string) => api.get(`/instances/${id}/resources/cfn/stacks/${name}/template`),
+
+  // Step Functions
+  listStateMachines: (id: string) => api.get(`/instances/${id}/resources/stepfunctions/state-machines`),
+  createStateMachine: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/stepfunctions/state-machines`, body),
+  deleteStateMachine: (id: string, arn: string) => api.delete(`/instances/${id}/resources/stepfunctions/state-machines/${encodeURIComponent(arn)}`),
+  describeStateMachine: (id: string, arn: string) => api.get(`/instances/${id}/resources/stepfunctions/state-machines/${encodeURIComponent(arn)}`),
+  updateStateMachine: (id: string, arn: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/stepfunctions/state-machines/${encodeURIComponent(arn)}`, body),
+  listExecutions: (id: string, arn: string) => api.get(`/instances/${id}/resources/stepfunctions/state-machines/${encodeURIComponent(arn)}/executions`),
+  startExecution: (id: string, arn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/stepfunctions/state-machines/${encodeURIComponent(arn)}/executions`, body),
+  stopExecution: (id: string, execArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/stepfunctions/executions/${encodeURIComponent(execArn)}/stop`, body),
+  describeExecution: (id: string, execArn: string) => api.get(`/instances/${id}/resources/stepfunctions/executions/${encodeURIComponent(execArn)}`),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
