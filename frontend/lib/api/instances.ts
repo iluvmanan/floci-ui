@@ -506,6 +506,67 @@ export const instancesApi = {
   stopExecution: (id: string, execArn: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/stepfunctions/executions/${encodeURIComponent(execArn)}/stop`, body),
   describeExecution: (id: string, execArn: string) => api.get(`/instances/${id}/resources/stepfunctions/executions/${encodeURIComponent(execArn)}`),
 
+  // AppSync
+  listAppSyncAPIs: (id: string) => api.get(`/instances/${id}/resources/appsync/apis`),
+  createAppSyncAPI: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appsync/apis`, body),
+  deleteAppSyncAPI: (id: string, apiId: string) => api.delete(`/instances/${id}/resources/appsync/apis/${apiId}`),
+  getAppSyncSchema: (id: string, apiId: string) => api.get(`/instances/${id}/resources/appsync/apis/${apiId}/schema`),
+  listDataSources: (id: string, apiId: string) => api.get(`/instances/${id}/resources/appsync/apis/${apiId}/datasources`),
+  createDataSource: (id: string, apiId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appsync/apis/${apiId}/datasources`, body),
+  deleteDataSource: (id: string, apiId: string, name: string) => api.delete(`/instances/${id}/resources/appsync/apis/${apiId}/datasources/${name}`),
+  listAppSyncTypes: (id: string, apiId: string) => api.get(`/instances/${id}/resources/appsync/apis/${apiId}/types`),
+
+  // AppConfig
+  listAppConfigApps: (id: string) => api.get(`/instances/${id}/resources/appconfig/applications`),
+  createAppConfigApp: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appconfig/applications`, body),
+  deleteAppConfigApp: (id: string, appId: string) => api.delete(`/instances/${id}/resources/appconfig/applications/${appId}`),
+  listAppConfigEnvs: (id: string, appId: string) => api.get(`/instances/${id}/resources/appconfig/applications/${appId}/environments`),
+  createAppConfigEnv: (id: string, appId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appconfig/applications/${appId}/environments`, body),
+  deleteAppConfigEnv: (id: string, appId: string, envId: string) => api.delete(`/instances/${id}/resources/appconfig/applications/${appId}/environments/${envId}`),
+  listConfigProfiles: (id: string, appId: string) => api.get(`/instances/${id}/resources/appconfig/applications/${appId}/configurationprofiles`),
+  createConfigProfile: (id: string, appId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appconfig/applications/${appId}/configurationprofiles`, body),
+  startDeployment: (id: string, appId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/appconfig/applications/${appId}/deployments`, body),
+  listDeployments: (id: string, appId: string, envId: string) => api.get(`/instances/${id}/resources/appconfig/applications/${appId}/environments/${envId}/deployments`),
+
+  // CodeBuild
+  listCodeBuildProjects: (id: string) => api.get(`/instances/${id}/resources/codebuild/projects`),
+  createCodeBuildProject: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/codebuild/projects`, body),
+  deleteCodeBuildProject: (id: string, name: string) => api.delete(`/instances/${id}/resources/codebuild/projects/${name}`),
+  startBuild: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/codebuild/projects/${name}/build`, body),
+  listBuilds: (id: string, name: string) => api.get(`/instances/${id}/resources/codebuild/projects/${name}/builds`),
+  getBuild: (id: string, buildId: string) => api.get(`/instances/${id}/resources/codebuild/builds/${buildId}`),
+
+  // CodeDeploy
+  listCodeDeployApps: (id: string) => api.get(`/instances/${id}/resources/codedeploy/applications`),
+  createCodeDeployApp: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/codedeploy/applications`, body),
+  deleteCodeDeployApp: (id: string, name: string) => api.delete(`/instances/${id}/resources/codedeploy/applications/${name}`),
+  listDeploymentGroups: (id: string, name: string) => api.get(`/instances/${id}/resources/codedeploy/applications/${name}/groups`),
+  createDeploymentGroup: (id: string, name: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/codedeploy/applications/${name}/groups`, body),
+  createDeployment: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/codedeploy/deployments`, body),
+  listCodeDeployDeployments: (id: string, name: string) => api.get(`/instances/${id}/resources/codedeploy/applications/${name}/deployments`),
+  getDeployment: (id: string, deploymentId: string) => api.get(`/instances/${id}/resources/codedeploy/deployments/${deploymentId}`),
+
+  // AWS Backup
+  listBackupVaults: (id: string) => api.get(`/instances/${id}/resources/backup/vaults`),
+  createBackupVault: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/backup/vaults`, body),
+  deleteBackupVault: (id: string, name: string) => api.delete(`/instances/${id}/resources/backup/vaults/${name}`),
+  listBackupPlans: (id: string) => api.get(`/instances/${id}/resources/backup/plans`),
+  createBackupPlan: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/backup/plans`, body),
+  deleteBackupPlan: (id: string, planId: string) => api.delete(`/instances/${id}/resources/backup/plans/${planId}`),
+  listBackupJobs: (id: string) => api.get(`/instances/${id}/resources/backup/jobs/backup`),
+  startBackupJob: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/backup/jobs/backup`, body),
+  listRecoveryPoints: (id: string, vaultName: string) => api.get(`/instances/${id}/resources/backup/vaults/${vaultName}/recovery-points`),
+
+  // Transfer Family
+  listTransferServers: (id: string) => api.get(`/instances/${id}/resources/transfer/servers`),
+  createTransferServer: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/transfer/servers`, body),
+  deleteTransferServer: (id: string, serverId: string) => api.delete(`/instances/${id}/resources/transfer/servers/${serverId}`),
+  startTransferServer: (id: string, serverId: string) => api.post(`/instances/${id}/resources/transfer/servers/${serverId}/start`),
+  stopTransferServer: (id: string, serverId: string) => api.post(`/instances/${id}/resources/transfer/servers/${serverId}/stop`),
+  listTransferUsers: (id: string, serverId: string) => api.get(`/instances/${id}/resources/transfer/servers/${serverId}/users`),
+  createTransferUser: (id: string, serverId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/transfer/servers/${serverId}/users`, body),
+  deleteTransferUser: (id: string, serverId: string, username: string) => api.delete(`/instances/${id}/resources/transfer/servers/${serverId}/users/${username}`),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
