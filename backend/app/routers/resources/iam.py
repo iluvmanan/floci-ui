@@ -43,10 +43,9 @@ class AddUserToGroupRequest(BaseModel):
 
 # ─── Users ────────────────────────────────────────────────────────────────────
 
-@router.get("/users")
+@router.get("/users", dependencies=[RequireViewer])
 async def list_iam_users(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -64,11 +63,10 @@ async def list_iam_users(
     ]
 
 
-@router.post("/users", status_code=status.HTTP_201_CREATED)
+@router.post("/users", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_iam_user(
     instance_id: str,
     body: CreateUserRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -78,11 +76,10 @@ async def create_iam_user(
     return {"username": u["UserName"], "arn": u["Arn"]}
 
 
-@router.delete("/users/{username}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{username}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_iam_user(
     instance_id: str,
     username: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -90,11 +87,10 @@ async def delete_iam_user(
     client.delete_user(UserName=username)
 
 
-@router.get("/users/{username}/policies")
+@router.get("/users/{username}/policies", dependencies=[RequireViewer])
 async def list_user_policies(
     instance_id: str,
     username: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -106,12 +102,11 @@ async def list_user_policies(
     ]
 
 
-@router.post("/users/{username}/policies")
+@router.post("/users/{username}/policies", dependencies=[RequireOperator])
 async def attach_user_policy(
     instance_id: str,
     username: str,
     body: AttachPolicyRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -120,12 +115,11 @@ async def attach_user_policy(
     return {"success": True}
 
 
-@router.delete("/users/{username}/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{username}/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def detach_user_policy(
     instance_id: str,
     username: str,
     policy_arn: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -133,11 +127,10 @@ async def detach_user_policy(
     client.detach_user_policy(UserName=username, PolicyArn=policy_arn)
 
 
-@router.get("/users/{username}/access-keys")
+@router.get("/users/{username}/access-keys", dependencies=[RequireViewer])
 async def list_access_keys(
     instance_id: str,
     username: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -153,11 +146,10 @@ async def list_access_keys(
     ]
 
 
-@router.post("/users/{username}/access-keys", status_code=status.HTTP_201_CREATED)
+@router.post("/users/{username}/access-keys", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_access_key(
     instance_id: str,
     username: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -171,12 +163,11 @@ async def create_access_key(
     }
 
 
-@router.delete("/users/{username}/access-keys/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/users/{username}/access-keys/{key_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_access_key(
     instance_id: str,
     username: str,
     key_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -186,10 +177,9 @@ async def delete_access_key(
 
 # ─── Roles ────────────────────────────────────────────────────────────────────
 
-@router.get("/roles")
+@router.get("/roles", dependencies=[RequireViewer])
 async def list_iam_roles(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -207,11 +197,10 @@ async def list_iam_roles(
     ]
 
 
-@router.post("/roles", status_code=status.HTTP_201_CREATED)
+@router.post("/roles", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_iam_role(
     instance_id: str,
     body: CreateRoleRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -225,11 +214,10 @@ async def create_iam_role(
     return {"role_name": r["RoleName"], "arn": r["Arn"]}
 
 
-@router.delete("/roles/{name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/roles/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_iam_role(
     instance_id: str,
     name: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -237,11 +225,10 @@ async def delete_iam_role(
     client.delete_role(RoleName=name)
 
 
-@router.get("/roles/{name}/policies")
+@router.get("/roles/{name}/policies", dependencies=[RequireViewer])
 async def list_role_policies(
     instance_id: str,
     name: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -253,12 +240,11 @@ async def list_role_policies(
     ]
 
 
-@router.post("/roles/{name}/policies")
+@router.post("/roles/{name}/policies", dependencies=[RequireOperator])
 async def attach_role_policy(
     instance_id: str,
     name: str,
     body: AttachPolicyRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -267,12 +253,11 @@ async def attach_role_policy(
     return {"success": True}
 
 
-@router.delete("/roles/{name}/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/roles/{name}/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def detach_role_policy(
     instance_id: str,
     name: str,
     policy_arn: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -282,10 +267,9 @@ async def detach_role_policy(
 
 # ─── Policies ─────────────────────────────────────────────────────────────────
 
-@router.get("/policies")
+@router.get("/policies", dependencies=[RequireViewer])
 async def list_iam_policies(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -303,11 +287,10 @@ async def list_iam_policies(
     ]
 
 
-@router.post("/policies", status_code=status.HTTP_201_CREATED)
+@router.post("/policies", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_iam_policy(
     instance_id: str,
     body: CreatePolicyRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -321,11 +304,10 @@ async def create_iam_policy(
     return {"policy_name": p["PolicyName"], "arn": p["Arn"]}
 
 
-@router.delete("/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/policies/{policy_arn:path}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_iam_policy(
     instance_id: str,
     policy_arn: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -335,10 +317,9 @@ async def delete_iam_policy(
 
 # ─── Groups ───────────────────────────────────────────────────────────────────
 
-@router.get("/groups")
+@router.get("/groups", dependencies=[RequireViewer])
 async def list_iam_groups(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -356,11 +337,10 @@ async def list_iam_groups(
     ]
 
 
-@router.post("/groups", status_code=status.HTTP_201_CREATED)
+@router.post("/groups", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_iam_group(
     instance_id: str,
     body: CreateGroupRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -370,11 +350,10 @@ async def create_iam_group(
     return {"group_name": g["GroupName"], "arn": g["Arn"]}
 
 
-@router.delete("/groups/{name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/groups/{name}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_iam_group(
     instance_id: str,
     name: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -382,11 +361,10 @@ async def delete_iam_group(
     client.delete_group(GroupName=name)
 
 
-@router.get("/groups/{name}/users")
+@router.get("/groups/{name}/users", dependencies=[RequireViewer])
 async def list_group_members(
     instance_id: str,
     name: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -398,12 +376,11 @@ async def list_group_members(
     ]
 
 
-@router.post("/groups/{name}/users")
+@router.post("/groups/{name}/users", dependencies=[RequireOperator])
 async def add_user_to_group(
     instance_id: str,
     name: str,
     body: AddUserToGroupRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -412,12 +389,11 @@ async def add_user_to_group(
     return {"success": True}
 
 
-@router.delete("/groups/{name}/users/{username}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/groups/{name}/users/{username}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def remove_user_from_group(
     instance_id: str,
     name: str,
     username: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)

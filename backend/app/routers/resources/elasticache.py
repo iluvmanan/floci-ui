@@ -35,10 +35,9 @@ class RebootClusterRequest(BaseModel):
 
 # ─── Cache Clusters ───────────────────────────────────────────────────────────
 
-@router.get("/clusters")
+@router.get("/clusters", dependencies=[RequireViewer])
 async def list_cache_clusters(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -61,11 +60,10 @@ async def list_cache_clusters(
     return result
 
 
-@router.post("/clusters", status_code=status.HTTP_201_CREATED)
+@router.post("/clusters", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_cache_cluster(
     instance_id: str,
     body: CreateCacheClusterRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -86,11 +84,10 @@ async def create_cache_cluster(
     }
 
 
-@router.delete("/clusters/{cluster_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/clusters/{cluster_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_cache_cluster(
     instance_id: str,
     cluster_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -98,12 +95,11 @@ async def delete_cache_cluster(
     client.delete_cache_cluster(CacheClusterId=cluster_id)
 
 
-@router.post("/clusters/{cluster_id}/reboot")
+@router.post("/clusters/{cluster_id}/reboot", dependencies=[RequireOperator])
 async def reboot_cache_cluster(
     instance_id: str,
     cluster_id: str,
     body: RebootClusterRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -117,10 +113,9 @@ async def reboot_cache_cluster(
 
 # ─── Replication Groups ───────────────────────────────────────────────────────
 
-@router.get("/replication-groups")
+@router.get("/replication-groups", dependencies=[RequireViewer])
 async def list_replication_groups(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -144,11 +139,10 @@ async def list_replication_groups(
     return result
 
 
-@router.post("/replication-groups", status_code=status.HTTP_201_CREATED)
+@router.post("/replication-groups", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_replication_group(
     instance_id: str,
     body: CreateReplicationGroupRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -167,11 +161,10 @@ async def create_replication_group(
     }
 
 
-@router.delete("/replication-groups/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/replication-groups/{group_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_replication_group(
     instance_id: str,
     group_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)

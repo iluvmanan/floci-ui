@@ -36,10 +36,9 @@ class CreateAPIKeyRequest(BaseModel):
 
 # ─── REST APIs ────────────────────────────────────────────────────────────────
 
-@router.get("/rest-apis")
+@router.get("/rest-apis", dependencies=[RequireViewer])
 async def list_rest_apis(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -57,11 +56,10 @@ async def list_rest_apis(
     ]
 
 
-@router.post("/rest-apis", status_code=status.HTTP_201_CREATED)
+@router.post("/rest-apis", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_rest_api(
     instance_id: str,
     body: CreateRestAPIRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -74,11 +72,10 @@ async def create_rest_api(
     return {"id": resp["id"], "name": resp["name"]}
 
 
-@router.delete("/rest-apis/{api_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/rest-apis/{api_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_rest_api(
     instance_id: str,
     api_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -86,11 +83,10 @@ async def delete_rest_api(
     client.delete_rest_api(restApiId=api_id)
 
 
-@router.get("/rest-apis/{api_id}/resources")
+@router.get("/rest-apis/{api_id}/resources", dependencies=[RequireViewer])
 async def list_api_resources(
     instance_id: str,
     api_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -108,12 +104,11 @@ async def list_api_resources(
     ]
 
 
-@router.post("/rest-apis/{api_id}/resources", status_code=status.HTTP_201_CREATED)
+@router.post("/rest-apis/{api_id}/resources", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_api_resource(
     instance_id: str,
     api_id: str,
     body: CreateResourceRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -126,12 +121,11 @@ async def create_api_resource(
     return {"id": resp["id"], "path": resp.get("path", "")}
 
 
-@router.post("/rest-apis/{api_id}/deployments", status_code=status.HTTP_201_CREATED)
+@router.post("/rest-apis/{api_id}/deployments", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_api_deployment(
     instance_id: str,
     api_id: str,
     body: CreateDeploymentRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -144,11 +138,10 @@ async def create_api_deployment(
     return {"id": resp["id"], "created_date": str(resp.get("createdDate", ""))}
 
 
-@router.get("/rest-apis/{api_id}/stages")
+@router.get("/rest-apis/{api_id}/stages", dependencies=[RequireViewer])
 async def list_api_stages(
     instance_id: str,
     api_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -168,10 +161,9 @@ async def list_api_stages(
 
 # ─── API Keys ─────────────────────────────────────────────────────────────────
 
-@router.get("/api-keys")
+@router.get("/api-keys", dependencies=[RequireViewer])
 async def list_api_keys(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -189,11 +181,10 @@ async def list_api_keys(
     ]
 
 
-@router.post("/api-keys", status_code=status.HTTP_201_CREATED)
+@router.post("/api-keys", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_api_key(
     instance_id: str,
     body: CreateAPIKeyRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -202,11 +193,10 @@ async def create_api_key(
     return {"id": resp["id"], "name": resp["name"], "value": resp.get("value", "")}
 
 
-@router.delete("/api-keys/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/api-keys/{key_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_api_key(
     instance_id: str,
     key_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)

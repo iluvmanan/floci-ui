@@ -37,10 +37,9 @@ class CreateDeploymentV2Request(BaseModel):
 
 # ─── APIs ─────────────────────────────────────────────────────────────────────
 
-@router.get("/apis")
+@router.get("/apis", dependencies=[RequireViewer])
 async def list_apis_v2(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -59,11 +58,10 @@ async def list_apis_v2(
     ]
 
 
-@router.post("/apis", status_code=status.HTTP_201_CREATED)
+@router.post("/apis", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_api_v2(
     instance_id: str,
     body: CreateAPIv2Request,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -75,11 +73,10 @@ async def create_api_v2(
     return {"api_id": resp["ApiId"], "api_endpoint": resp.get("ApiEndpoint", "")}
 
 
-@router.delete("/apis/{api_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/apis/{api_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_api_v2(
     instance_id: str,
     api_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -87,11 +84,10 @@ async def delete_api_v2(
     client.delete_api(ApiId=api_id)
 
 
-@router.get("/apis/{api_id}/routes")
+@router.get("/apis/{api_id}/routes", dependencies=[RequireViewer])
 async def list_routes_v2(
     instance_id: str,
     api_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -108,12 +104,11 @@ async def list_routes_v2(
     ]
 
 
-@router.post("/apis/{api_id}/routes", status_code=status.HTTP_201_CREATED)
+@router.post("/apis/{api_id}/routes", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_route_v2(
     instance_id: str,
     api_id: str,
     body: CreateRouteRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -126,11 +121,10 @@ async def create_route_v2(
     return {"route_id": resp["RouteId"], "route_key": resp["RouteKey"]}
 
 
-@router.get("/apis/{api_id}/integrations")
+@router.get("/apis/{api_id}/integrations", dependencies=[RequireViewer])
 async def list_integrations_v2(
     instance_id: str,
     api_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -148,12 +142,11 @@ async def list_integrations_v2(
     ]
 
 
-@router.post("/apis/{api_id}/integrations", status_code=status.HTTP_201_CREATED)
+@router.post("/apis/{api_id}/integrations", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_integration_v2(
     instance_id: str,
     api_id: str,
     body: CreateIntegrationRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -168,11 +161,10 @@ async def create_integration_v2(
     return {"integration_id": resp["IntegrationId"]}
 
 
-@router.get("/apis/{api_id}/stages")
+@router.get("/apis/{api_id}/stages", dependencies=[RequireViewer])
 async def list_stages_v2(
     instance_id: str,
     api_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -189,12 +181,11 @@ async def list_stages_v2(
     ]
 
 
-@router.post("/apis/{api_id}/deployments", status_code=status.HTTP_201_CREATED)
+@router.post("/apis/{api_id}/deployments", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_deployment_v2(
     instance_id: str,
     api_id: str,
     body: CreateDeploymentV2Request,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)

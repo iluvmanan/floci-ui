@@ -32,10 +32,9 @@ class CreateSnapshotRequest(BaseModel):
 
 # ─── DB Instances ─────────────────────────────────────────────────────────────
 
-@router.get("/instances")
+@router.get("/instances", dependencies=[RequireViewer])
 async def list_rds_instances(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -61,11 +60,10 @@ async def list_rds_instances(
     return result
 
 
-@router.post("/instances", status_code=status.HTTP_201_CREATED)
+@router.post("/instances", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_rds_instance(
     instance_id: str,
     body: CreateDBInstanceRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -92,11 +90,10 @@ async def create_rds_instance(
     }
 
 
-@router.post("/instances/{db_id}/start")
+@router.post("/instances/{db_id}/start", dependencies=[RequireOperator])
 async def start_rds_instance(
     instance_id: str,
     db_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -105,11 +102,10 @@ async def start_rds_instance(
     return {"success": True}
 
 
-@router.post("/instances/{db_id}/stop")
+@router.post("/instances/{db_id}/stop", dependencies=[RequireOperator])
 async def stop_rds_instance(
     instance_id: str,
     db_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -118,11 +114,10 @@ async def stop_rds_instance(
     return {"success": True}
 
 
-@router.delete("/instances/{db_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/instances/{db_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[RequireOperator])
 async def delete_rds_instance(
     instance_id: str,
     db_id: str,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -136,10 +131,9 @@ async def delete_rds_instance(
 
 # ─── Snapshots ────────────────────────────────────────────────────────────────
 
-@router.get("/snapshots")
+@router.get("/snapshots", dependencies=[RequireViewer])
 async def list_rds_snapshots(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -159,12 +153,11 @@ async def list_rds_snapshots(
     ]
 
 
-@router.post("/instances/{db_id}/snapshots", status_code=status.HTTP_201_CREATED)
+@router.post("/instances/{db_id}/snapshots", status_code=status.HTTP_201_CREATED, dependencies=[RequireOperator])
 async def create_rds_snapshot(
     instance_id: str,
     db_id: str,
     body: CreateSnapshotRequest,
-    _op=Depends(RequireOperator),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
@@ -182,10 +175,9 @@ async def create_rds_snapshot(
 
 # ─── Clusters ─────────────────────────────────────────────────────────────────
 
-@router.get("/clusters")
+@router.get("/clusters", dependencies=[RequireViewer])
 async def list_rds_clusters(
     instance_id: str,
-    _viewer=Depends(RequireViewer),
     db: AsyncSession = Depends(get_db),
 ):
     inst = await get_instance(instance_id, db)
