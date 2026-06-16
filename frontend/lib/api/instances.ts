@@ -626,6 +626,66 @@ export const instancesApi = {
   deleteTranscriptionJob: (id: string, name: string) => api.delete(`/instances/${id}/resources/transcribe/jobs/${name}`),
   getTranscript: (id: string, name: string) => api.get(`/instances/${id}/resources/transcribe/jobs/${name}/transcript`),
 
+  // SES
+  listSESIdentities: (id: string) => api.get(`/instances/${id}/resources/ses/identities`),
+  verifySESEmail: (id: string, emailAddress: string) => api.post(`/instances/${id}/resources/ses/identities/email`, { email_address: emailAddress }),
+  verifySESDomain: (id: string, domain: string) => api.post(`/instances/${id}/resources/ses/identities/domain`, { domain }),
+  deleteSESIdentity: (id: string, identity: string) => api.delete(`/instances/${id}/resources/ses/identities/${encodeURIComponent(identity)}`),
+  listSESTemplates: (id: string) => api.get(`/instances/${id}/resources/ses/templates`),
+  createSESTemplate: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ses/templates`, body),
+  deleteSESTemplate: (id: string, name: string) => api.delete(`/instances/${id}/resources/ses/templates/${encodeURIComponent(name)}`),
+  sendSESEmail: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ses/send`, body),
+  sendSESTemplatedEmail: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ses/send-template`, body),
+  getSESStatistics: (id: string) => api.get(`/instances/${id}/resources/ses/statistics`),
+  getSESQuota: (id: string) => api.get(`/instances/${id}/resources/ses/quota`),
+
+  // MSK
+  listMSKClusters: (id: string) => api.get(`/instances/${id}/resources/msk/clusters`),
+  createMSKCluster: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/msk/clusters`, body),
+  deleteMSKCluster: (id: string, arn: string) => api.delete(`/instances/${id}/resources/msk/clusters/${encodeURIComponent(arn)}`),
+  getMSKCluster: (id: string, arn: string) => api.get(`/instances/${id}/resources/msk/clusters/${encodeURIComponent(arn)}`),
+  getMSKBootstrapBrokers: (id: string, arn: string) => api.get(`/instances/${id}/resources/msk/clusters/${encodeURIComponent(arn)}/bootstrap-brokers`),
+
+  // Cloud Map
+  listCloudMapNamespaces: (id: string) => api.get(`/instances/${id}/resources/cloudmap/namespaces`),
+  createHTTPNamespace: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudmap/namespaces/http`, body),
+  createPrivateDNSNamespace: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudmap/namespaces/dns-private`, body),
+  deleteNamespace: (id: string, namespaceId: string) => api.delete(`/instances/${id}/resources/cloudmap/namespaces/${namespaceId}`),
+  listCloudMapServices: (id: string, namespaceId?: string) => api.get(`/instances/${id}/resources/cloudmap/services`, { params: namespaceId ? { namespace_id: namespaceId } : {} }),
+  createCloudMapService: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudmap/services`, body),
+  deleteCloudMapService: (id: string, serviceId: string) => api.delete(`/instances/${id}/resources/cloudmap/services/${serviceId}`),
+  listServiceInstances: (id: string, serviceId: string) => api.get(`/instances/${id}/resources/cloudmap/services/${serviceId}/instances`),
+  registerInstance: (id: string, serviceId: string, instanceId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/cloudmap/services/${serviceId}/instances/${instanceId}`, body),
+  deregisterInstance: (id: string, serviceId: string, instanceId: string) => api.delete(`/instances/${id}/resources/cloudmap/services/${serviceId}/instances/${instanceId}`),
+
+  // AWS Config
+  listConfigRecorders: (id: string) => api.get(`/instances/${id}/resources/awsconfig/recorders`),
+  putConfigRecorder: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/awsconfig/recorders`, body),
+  startConfigRecorder: (id: string, name: string) => api.post(`/instances/${id}/resources/awsconfig/recorders/${encodeURIComponent(name)}/start`),
+  stopConfigRecorder: (id: string, name: string) => api.post(`/instances/${id}/resources/awsconfig/recorders/${encodeURIComponent(name)}/stop`),
+  listConfigRules: (id: string) => api.get(`/instances/${id}/resources/awsconfig/rules`),
+  putConfigRule: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/awsconfig/rules`, body),
+  deleteConfigRule: (id: string, name: string) => api.delete(`/instances/${id}/resources/awsconfig/rules/${encodeURIComponent(name)}`),
+  getConfigCompliance: (id: string, configRuleNames?: string) => api.get(`/instances/${id}/resources/awsconfig/compliance`, { params: configRuleNames ? { config_rule_names: configRuleNames } : {} }),
+  listDiscoveredResources: (id: string, resourceType?: string) => api.get(`/instances/${id}/resources/awsconfig/resources`, { params: resourceType ? { resource_type: resourceType } : {} }),
+
+  // Resource Groups Tagging
+  getTaggedResources: (id: string, params: { tag_key?: string; tag_value?: string; resource_type?: string }) => api.get(`/instances/${id}/resources/tagging/resources`, { params }),
+  getTagKeys: (id: string) => api.get(`/instances/${id}/resources/tagging/tag-keys`),
+  getTagValues: (id: string, key: string) => api.get(`/instances/${id}/resources/tagging/tag-values/${encodeURIComponent(key)}`),
+  tagResources: (id: string, body: { resource_arns: string[]; tags: Record<string, string> }) => api.post(`/instances/${id}/resources/tagging/resources/tag`, body),
+  untagResources: (id: string, body: { resource_arns: string[]; tag_keys: string[] }) => api.post(`/instances/${id}/resources/tagging/resources/untag`, body),
+
+  // Cost Explorer
+  getCostAndUsage: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/costexplorer/cost-and-usage`, body),
+  getCostForecast: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/costexplorer/cost-forecast`, body),
+  listCostAllocationTags: (id: string) => api.get(`/instances/${id}/resources/costexplorer/tags`),
+
+  // Pricing
+  listPricingServices: (id: string) => api.get(`/instances/${id}/resources/pricing/services`),
+  getPricingAttributeValues: (id: string, code: string, attr: string) => api.get(`/instances/${id}/resources/pricing/services/${code}/attribute-values/${attr}`),
+  searchPriceList: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/pricing/products`, body),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
