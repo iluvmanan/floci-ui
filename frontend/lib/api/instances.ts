@@ -398,6 +398,63 @@ export const instancesApi = {
   assumeRole: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/sts/assume-role`, body),
   getFederationToken: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/sts/federation-token`, body),
 
+  // ECS
+  listECSClusters: (id: string) => api.get(`/instances/${id}/resources/ecs/clusters`),
+  createECSCluster: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ecs/clusters`, body),
+  deleteECSCluster: (id: string, name: string) => api.delete(`/instances/${id}/resources/ecs/clusters/${name}`),
+  listECSServices: (id: string, cluster: string) => api.get(`/instances/${id}/resources/ecs/clusters/${cluster}/services`),
+  createECSService: (id: string, cluster: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ecs/clusters/${cluster}/services`, body),
+  updateECSService: (id: string, cluster: string, service: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/ecs/clusters/${cluster}/services/${service}`, body),
+  deleteECSService: (id: string, cluster: string, service: string) => api.delete(`/instances/${id}/resources/ecs/clusters/${cluster}/services/${service}`),
+  listECSTasks: (id: string, cluster: string) => api.get(`/instances/${id}/resources/ecs/clusters/${cluster}/tasks`),
+  runECSTask: (id: string, cluster: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ecs/clusters/${cluster}/tasks/run`, body),
+  stopECSTask: (id: string, cluster: string, taskArn: string, reason?: string) => api.post(`/instances/${id}/resources/ecs/clusters/${cluster}/tasks/${encodeURIComponent(taskArn)}/stop`, { reason }),
+  listTaskDefinitions: (id: string) => api.get(`/instances/${id}/resources/ecs/task-definitions`),
+  describeTaskDefinition: (id: string, family: string) => api.get(`/instances/${id}/resources/ecs/task-definitions/${family}`),
+  registerTaskDefinition: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ecs/task-definitions`, body),
+  deregisterTaskDefinition: (id: string, family: string, revision: number) => api.delete(`/instances/${id}/resources/ecs/task-definitions/${family}/${revision}`),
+
+  // EKS
+  listEKSClusters: (id: string) => api.get(`/instances/${id}/resources/eks/clusters`),
+  createEKSCluster: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/eks/clusters`, body),
+  deleteEKSCluster: (id: string, name: string) => api.delete(`/instances/${id}/resources/eks/clusters/${name}`),
+  getEKSCluster: (id: string, name: string) => api.get(`/instances/${id}/resources/eks/clusters/${name}`),
+  listNodeGroups: (id: string, cluster: string) => api.get(`/instances/${id}/resources/eks/clusters/${cluster}/nodegroups`),
+  createNodeGroup: (id: string, cluster: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/eks/clusters/${cluster}/nodegroups`, body),
+  deleteNodeGroup: (id: string, cluster: string, ng: string) => api.delete(`/instances/${id}/resources/eks/clusters/${cluster}/nodegroups/${ng}`),
+  updateNodeGroupScaling: (id: string, cluster: string, ng: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/eks/clusters/${cluster}/nodegroups/${ng}`, body),
+
+  // ECR
+  listECRRepos: (id: string) => api.get(`/instances/${id}/resources/ecr/repositories`),
+  createECRRepo: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/ecr/repositories`, body),
+  deleteECRRepo: (id: string, name: string) => api.delete(`/instances/${id}/resources/ecr/repositories/${name}`),
+  listECRImages: (id: string, name: string) => api.get(`/instances/${id}/resources/ecr/repositories/${name}/images`),
+  deleteECRImages: (id: string, name: string, imageIds: Record<string, unknown>[]) => api.delete(`/instances/${id}/resources/ecr/repositories/${name}/images`, { data: { image_ids: imageIds } }),
+  getECRPolicy: (id: string, name: string) => api.get(`/instances/${id}/resources/ecr/repositories/${name}/policy`),
+  setECRPolicy: (id: string, name: string, policyText: string) => api.put(`/instances/${id}/resources/ecr/repositories/${name}/policy`, { policy_text: policyText }),
+  deleteECRPolicy: (id: string, name: string) => api.delete(`/instances/${id}/resources/ecr/repositories/${name}/policy`),
+  getECRAuthToken: (id: string) => api.get(`/instances/${id}/resources/ecr/auth-token`),
+
+  // Auto Scaling
+  listASGs: (id: string) => api.get(`/instances/${id}/resources/autoscaling/groups`),
+  createASG: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/autoscaling/groups`, body),
+  updateASG: (id: string, name: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/autoscaling/groups/${name}`, body),
+  deleteASG: (id: string, name: string) => api.delete(`/instances/${id}/resources/autoscaling/groups/${name}`),
+  setASGDesiredCapacity: (id: string, name: string, desiredCapacity: number) => api.post(`/instances/${id}/resources/autoscaling/groups/${name}/capacity`, { desired_capacity: desiredCapacity }),
+  getASGActivities: (id: string, name: string) => api.get(`/instances/${id}/resources/autoscaling/groups/${name}/activities`),
+  listScalingPolicies: (id: string, asgName?: string) => api.get(`/instances/${id}/resources/autoscaling/policies`, { params: asgName ? { auto_scaling_group_name: asgName } : {} }),
+  createScalingPolicy: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/autoscaling/policies`, body),
+  deleteScalingPolicy: (id: string, policyName: string, asgName: string) => api.delete(`/instances/${id}/resources/autoscaling/policies/${policyName}`, { params: { auto_scaling_group_name: asgName } }),
+
+  // Route 53
+  listHostedZones: (id: string) => api.get(`/instances/${id}/resources/route53/hosted-zones`),
+  createHostedZone: (id: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/route53/hosted-zones`, body),
+  deleteHostedZone: (id: string, zoneId: string) => api.delete(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}`),
+  listRecordSets: (id: string, zoneId: string) => api.get(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`),
+  createRecord: (id: string, zoneId: string, body: Record<string, unknown>) => api.post(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`, body),
+  upsertRecord: (id: string, zoneId: string, body: Record<string, unknown>) => api.put(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`, body),
+  deleteRecord: (id: string, zoneId: string, body: Record<string, unknown>) => api.delete(`/instances/${id}/resources/route53/hosted-zones/${encodeURIComponent(zoneId)}/record-sets`, { data: body }),
+
   // Monitoring — CloudWatch Logs
   listLogGroups: (id: string) =>
     api.get<LogGroup[]>(`/instances/${id}/monitoring/log-groups`),
