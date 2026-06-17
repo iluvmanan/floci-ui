@@ -24,6 +24,11 @@ class PublishMessage(BaseModel):
     attributes: dict[str, Any] | None = None
 
 
+class SubscribeBody(BaseModel):
+    protocol: str
+    endpoint: str
+
+
 @router.get("/topics", dependencies=[RequireViewer])
 async def list_topics(instance_id: UUID, db: AsyncSession = Depends(get_db)):
     inst = await get_instance(instance_id, db)
@@ -67,7 +72,7 @@ async def publish_message(
 
 
 @router.get("/topics/{arn:path}/subscriptions", dependencies=[RequireViewer])
-async def list_subscriptions(instance_id: UUID, arn: str, db: AsyncSession = Depends(get_db)):
+async def list_topic_subscriptions(instance_id: UUID, arn: str, db: AsyncSession = Depends(get_db)):
     inst = await get_instance(instance_id, db)
     client = _rb.get_client(inst, "sns")
     resp = client.list_subscriptions_by_topic(TopicArn=arn)
@@ -75,3 +80,51 @@ async def list_subscriptions(instance_id: UUID, arn: str, db: AsyncSession = Dep
         {"arn": s["SubscriptionArn"], "protocol": s["Protocol"], "endpoint": s["Endpoint"]}
         for s in resp.get("Subscriptions", [])
     ]
+
+
+@router.get("/subscriptions", dependencies=[RequireViewer])
+async def list_all_subscriptions(instance_id: UUID, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sns")
+    resp = client.list_subscriptions()
+    return [
+        {
+            "arn": s["SubscriptionArn"],
+            "protocol": s["Protocol"],
+            "endpoint": s["Endpoint"],
+            "topic_arn": s["TopicArn"],
+            "owner": s.get("Owner", ""),
+        }
+        for s in resp.get("Subscriptions", [])
+    ]
+
+
+@router.post("/topics/{arn:path}/subscribe", dependencies=[RequireOperator])
+async def subscribe_to_topic(
+    instance_id: UUID, arn: str, body: SubscribeBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sns")
+    resp = client.subscribe(TopicArn=arn, Protocol=body.protocol, Endpoint=body.endpoint, ReturnSubscriptionArn=True)
+    return {"subscription_arn": resp["SubscriptionArn"]}
+
+
+@router.delete("/subscriptions/{arn:path}", status_code=204, dependencies=[RequireOperator])
+async def unsubscribe(instance_id: UUID, arn: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sns")
+    client.unsubscribe(SubscriptionArn=arn)
+
+
+@router.get("/topics/{arn:path}/attributes", dependencies=[RequireViewer])
+async def get_topic_attributes(instance_id: UUID, arn: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "sns")
+    resp = client.get_topic_attributes(TopicArn=arn)
+    attrs = resp.get("Attributes", {})
+    return {
+        "arn": attrs.get("TopicArn", ""),
+        "subscriptions_confirmed": attrs.get("SubscriptionsConfirmed", "0"),
+        "subscriptions_pending": attrs.get("SubscriptionsPending", "0"),
+        "subscriptions_deleted": attrs.get("SubscriptionsDeleted", "0"),
+    }

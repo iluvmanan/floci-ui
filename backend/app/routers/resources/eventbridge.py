@@ -24,6 +24,18 @@ class PutEvent(BaseModel):
     detail: dict
 
 
+class RuleCreate(BaseModel):
+    name: str
+    event_pattern: str | None = None
+    schedule_expression: str | None = None
+    state: str = "ENABLED"
+    description: str | None = None
+
+
+class PutTargetsBody(BaseModel):
+    targets: list
+
+
 @router.get("/buses", dependencies=[RequireViewer])
 async def list_buses(instance_id: UUID, db: AsyncSession = Depends(get_db)):
     inst = await get_instance(instance_id, db)
@@ -70,4 +82,62 @@ async def list_rules(instance_id: UUID, name: str, db: AsyncSession = Depends(ge
     inst = await get_instance(instance_id, db)
     client = _rb.get_client(inst, "events")
     resp = client.list_rules(EventBusName=name)
-    return [{"name": r["Name"], "arn": r.get("Arn", ""), "state": r.get("State", "")} for r in resp.get("Rules", [])]
+    return [
+        {
+            "name": r["Name"],
+            "arn": r.get("Arn", ""),
+            "state": r.get("State", ""),
+            "event_pattern": r.get("EventPattern"),
+            "schedule_expression": r.get("ScheduleExpression"),
+            "description": r.get("Description"),
+        }
+        for r in resp.get("Rules", [])
+    ]
+
+
+@router.post("/buses/{name}/rules", dependencies=[RequireOperator])
+async def create_rule(
+    instance_id: UUID, name: str, body: RuleCreate, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "events")
+    kwargs: dict = {"Name": body.name, "State": body.state, "EventBusName": name}
+    if body.event_pattern:
+        kwargs["EventPattern"] = body.event_pattern
+    if body.schedule_expression:
+        kwargs["ScheduleExpression"] = body.schedule_expression
+    if body.description:
+        kwargs["Description"] = body.description
+    resp = client.put_rule(**kwargs)
+    return {"rule_arn": resp["RuleArn"]}
+
+
+@router.delete("/buses/{name}/rules/{rule}", status_code=204, dependencies=[RequireOperator])
+async def delete_rule(instance_id: UUID, name: str, rule: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "events")
+    targets = client.list_targets_by_rule(Rule=rule, EventBusName=name).get("Targets", [])
+    if targets:
+        client.remove_targets(Rule=rule, EventBusName=name, Ids=[t["Id"] for t in targets])
+    client.delete_rule(Name=rule, EventBusName=name)
+
+
+@router.get("/buses/{name}/rules/{rule}/targets", dependencies=[RequireViewer])
+async def list_rule_targets(instance_id: UUID, name: str, rule: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "events")
+    resp = client.list_targets_by_rule(Rule=rule, EventBusName=name)
+    return [
+        {"id": t["Id"], "arn": t["Arn"], "input": t.get("Input"), "input_path": t.get("InputPath")}
+        for t in resp.get("Targets", [])
+    ]
+
+
+@router.post("/buses/{name}/rules/{rule}/targets", dependencies=[RequireOperator])
+async def put_rule_targets(
+    instance_id: UUID, name: str, rule: str, body: PutTargetsBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "events")
+    client.put_targets(Rule=rule, EventBusName=name, Targets=body.targets)
+    return {"success": True}

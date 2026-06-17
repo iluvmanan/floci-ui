@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -16,6 +17,22 @@ router = APIRouter(prefix="/instances/{instance_id}/resources/s3", tags=["s3"])
 class BucketCreate(BaseModel):
     bucket_name: str
     region: str | None = None
+
+
+class VersioningBody(BaseModel):
+    enabled: bool
+
+
+class PolicyBody(BaseModel):
+    policy: str
+
+
+class CORSBody(BaseModel):
+    rules: list
+
+
+class TaggingBody(BaseModel):
+    tags: list[dict]
 
 
 @router.get("/buckets", dependencies=[RequireViewer])
@@ -115,3 +132,101 @@ async def upload_url(
         ExpiresIn=3600,
     )
     return resp
+
+
+@router.get("/buckets/{bucket}/versioning", dependencies=[RequireViewer])
+async def get_bucket_versioning(instance_id: UUID, bucket: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    resp = client.get_bucket_versioning(Bucket=bucket)
+    status = resp.get("Status", "Off") or "Off"
+    return {"status": status}
+
+
+@router.put("/buckets/{bucket}/versioning", dependencies=[RequireOperator])
+async def set_bucket_versioning(
+    instance_id: UUID, bucket: str, body: VersioningBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    client.put_bucket_versioning(
+        Bucket=bucket,
+        VersioningConfiguration={"Status": "Enabled" if body.enabled else "Suspended"},
+    )
+    return {"status": "Enabled" if body.enabled else "Suspended"}
+
+
+@router.get("/buckets/{bucket}/policy", dependencies=[RequireViewer])
+async def get_bucket_policy(instance_id: UUID, bucket: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    try:
+        resp = client.get_bucket_policy(Bucket=bucket)
+        return {"policy": resp["Policy"]}
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "NoSuchBucketPolicy":
+            return {"policy": None}
+        raise
+
+
+@router.put("/buckets/{bucket}/policy", dependencies=[RequireOperator])
+async def set_bucket_policy(
+    instance_id: UUID, bucket: str, body: PolicyBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    client.put_bucket_policy(Bucket=bucket, Policy=body.policy)
+    return {"success": True}
+
+
+@router.delete("/buckets/{bucket}/policy", status_code=204, dependencies=[RequireOperator])
+async def delete_bucket_policy(instance_id: UUID, bucket: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    client.delete_bucket_policy(Bucket=bucket)
+
+
+@router.get("/buckets/{bucket}/cors", dependencies=[RequireViewer])
+async def get_bucket_cors(instance_id: UUID, bucket: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    try:
+        resp = client.get_bucket_cors(Bucket=bucket)
+        return {"rules": resp.get("CORSRules", [])}
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "NoSuchCORSConfiguration":
+            return {"rules": []}
+        raise
+
+
+@router.put("/buckets/{bucket}/cors", dependencies=[RequireOperator])
+async def set_bucket_cors(
+    instance_id: UUID, bucket: str, body: CORSBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    client.put_bucket_cors(Bucket=bucket, CORSConfiguration={"CORSRules": body.rules})
+    return {"success": True}
+
+
+@router.get("/buckets/{bucket}/tagging", dependencies=[RequireViewer])
+async def get_bucket_tagging(instance_id: UUID, bucket: str, db: AsyncSession = Depends(get_db)):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    try:
+        resp = client.get_bucket_tagging(Bucket=bucket)
+        return {"tags": resp.get("TagSet", [])}
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "NoSuchTagSet":
+            return {"tags": []}
+        raise
+
+
+@router.put("/buckets/{bucket}/tagging", dependencies=[RequireOperator])
+async def set_bucket_tagging(
+    instance_id: UUID, bucket: str, body: TaggingBody, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "s3")
+    client.put_bucket_tagging(Bucket=bucket, Tagging={"TagSet": body.tags})
+    return {"success": True}

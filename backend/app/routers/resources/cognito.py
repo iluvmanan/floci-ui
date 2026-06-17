@@ -18,6 +18,15 @@ class UserCreate(BaseModel):
     temp_password: str
 
 
+class UpdateUserAttributes(BaseModel):
+    attributes: list[dict]
+
+
+class AppClientCreate(BaseModel):
+    client_name: str
+    generate_secret: bool = False
+
+
 @router.get("/user-pools", dependencies=[RequireViewer])
 async def list_user_pools(instance_id: UUID, db: AsyncSession = Depends(get_db)):
     inst = await get_instance(instance_id, db)
@@ -78,3 +87,94 @@ async def delete_user(
     inst = await get_instance(instance_id, db)
     client = _rb.get_client(inst, "cognito-idp")
     client.admin_delete_user(UserPoolId=pool_id, Username=username)
+
+
+@router.get("/user-pools/{pool_id}", dependencies=[RequireViewer])
+async def describe_user_pool(
+    instance_id: UUID, pool_id: str, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    resp = client.describe_user_pool(UserPoolId=pool_id)
+    p = resp["UserPool"]
+    return {
+        "id": p["Id"],
+        "name": p["Name"],
+        "status": p.get("Status", ""),
+        "mfa_configuration": p.get("MfaConfiguration", "OFF"),
+        "estimated_number_of_users": p.get("EstimatedNumberOfUsers", 0),
+        "creation_date": str(p.get("CreationDate", "")),
+        "last_modified_date": str(p.get("LastModifiedDate", "")),
+    }
+
+
+@router.post("/user-pools/{pool_id}/users/{username}/enable", dependencies=[RequireOperator])
+async def enable_user(
+    instance_id: UUID, pool_id: str, username: str, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    client.admin_enable_user(UserPoolId=pool_id, Username=username)
+    return {"success": True}
+
+
+@router.post("/user-pools/{pool_id}/users/{username}/disable", dependencies=[RequireOperator])
+async def disable_user(
+    instance_id: UUID, pool_id: str, username: str, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    client.admin_disable_user(UserPoolId=pool_id, Username=username)
+    return {"success": True}
+
+
+@router.post("/user-pools/{pool_id}/users/{username}/reset-password", dependencies=[RequireOperator])
+async def reset_user_password(
+    instance_id: UUID, pool_id: str, username: str, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    client.admin_reset_user_password(UserPoolId=pool_id, Username=username)
+    return {"success": True}
+
+
+@router.put("/user-pools/{pool_id}/users/{username}", dependencies=[RequireOperator])
+async def update_user_attributes(
+    instance_id: UUID, pool_id: str, username: str, body: UpdateUserAttributes, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    client.admin_update_user_attributes(UserPoolId=pool_id, Username=username, UserAttributes=body.attributes)
+    return {"success": True}
+
+
+@router.get("/user-pools/{pool_id}/app-clients", dependencies=[RequireViewer])
+async def list_app_clients(
+    instance_id: UUID, pool_id: str, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    resp = client.list_user_pool_clients(UserPoolId=pool_id, MaxResults=60)
+    return [
+        {"client_id": c["ClientId"], "client_name": c["ClientName"]}
+        for c in resp.get("UserPoolClients", [])
+    ]
+
+
+@router.post("/user-pools/{pool_id}/app-clients", status_code=201, dependencies=[RequireOperator])
+async def create_app_client(
+    instance_id: UUID, pool_id: str, body: AppClientCreate, db: AsyncSession = Depends(get_db)
+):
+    inst = await get_instance(instance_id, db)
+    client = _rb.get_client(inst, "cognito-idp")
+    resp = client.create_user_pool_client(
+        UserPoolId=pool_id,
+        ClientName=body.client_name,
+        GenerateSecret=body.generate_secret,
+    )
+    c = resp["UserPoolClient"]
+    return {
+        "client_id": c["ClientId"],
+        "client_name": c["ClientName"],
+        "client_secret": c.get("ClientSecret"),
+    }
