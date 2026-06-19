@@ -1,4 +1,14 @@
 import asyncio
+import os
+
+from cryptography.fernet import Fernet
+
+# Provide throwaway crypto secrets for the test session BEFORE importing the app
+# (which builds the Settings singleton). Real values come from the environment in
+# docker/production; these never leave the test process. setdefault keeps any
+# values already supplied by the environment (e.g. when running via `make test`).
+os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production")
+os.environ.setdefault("ENCRYPTION_KEY", Fernet.generate_key().decode())
 
 import pytest
 from httpx import ASGITransport, AsyncClient

@@ -12,15 +12,15 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://floci:floci_secret@localhost:5432/floci_console"
 
-    # Auth
-    jwt_secret: str = "dev-jwt-secret-change-in-production"
+    # Auth — required; provided via env (docker-compose) or .env. No insecure default.
+    jwt_secret: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
 
-    # Encryption (for Floci instance secret_key at rest)
+    # Encryption (for Floci instance secret_key at rest) — required; provided via env.
     # Must be a valid Fernet key (44-char base64). Generate: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-    encryption_key: str = "v-YiDqn1-R-MGvgskCXJs2Gkj9oFnFYNgbnzgBLadL8="
+    encryption_key: str
 
     # Union allows pydantic-settings to skip JSON parsing when the value is a plain string,
     # then the validator normalises it to list[str] in all cases.

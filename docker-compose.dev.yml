@@ -11,8 +11,8 @@ services:
       - ./backend:/app
     environment:
       DATABASE_URL: postgresql+asyncpg://floci:floci_secret@postgres:5432/floci_console
-      JWT_SECRET: 0134f79c85a0a3e46504d75016f849823ff7b72de7b6ff7edca65ea085fa5640
-      ENCRYPTION_KEY: AoBY1ZcsaQysRfWMriqAEsK9lVe6PKePlNapaJ6Jht0=
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (see .env.example / make gen-jwt-secret)}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env (see .env.example / make gen-encryption-key)}
       FIRST_SUPERADMIN_EMAIL: admin@example.com
       FIRST_SUPERADMIN_PASSWORD: admin123
       BACKEND_CORS_ORIGINS: http://localhost:3000
