@@ -17,6 +17,16 @@ bundled local emulator for development.
 
 ---
 
+## Demo
+
+▶️ **[Watch the demo](demo.mp4)** — a walkthrough of the console (click to play in GitHub's file viewer).
+
+> Tip: to show the video inline at the top of the repo page, drag `demo.mp4` into a
+> GitHub Release or a comment box — GitHub returns a hosted URL you can embed directly
+> in this README.
+
+---
+
 ## Prerequisites
 
 - **Docker** + **Docker Compose** (Docker Desktop on macOS/Windows, or Docker Engine on Linux)
