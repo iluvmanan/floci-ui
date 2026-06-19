@@ -4,6 +4,9 @@
 dev:
 	docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.floci.yml up
 
+prod:
+	docker compose -f docker-compose.yml -f docker-compose.floci.yml up -d
+
 # Production build
 build:
 	docker compose build

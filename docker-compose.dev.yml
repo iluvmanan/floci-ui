@@ -31,4 +31,4 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
       WATCHPACK_POLLING: "true"
-    command: sh -c "[ -x node_modules/.bin/next ] || npm ci && npm run dev"
+    # command: sh -c "[ -x node_modules/.bin/next ] || npm ci && npm run dev"

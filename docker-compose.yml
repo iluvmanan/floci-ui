@@ -29,7 +29,7 @@ services:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?ENCRYPTION_KEY is required}
       FIRST_SUPERADMIN_EMAIL: ${FIRST_SUPERADMIN_EMAIL:-admin@example.com}
       FIRST_SUPERADMIN_PASSWORD: ${FIRST_SUPERADMIN_PASSWORD:-changeme123}
-      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3002}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
       ENVIRONMENT: production
     ports:
       - "8000:8000"
@@ -52,7 +52,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     ports:
-      - "3002:3000"
+      - "3000:3000"
     depends_on:
       - backend
 
