@@ -1,5 +1,7 @@
 # Floci Management Console
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 An enterprise web console for managing [Floci](https://floci.io) instances — browse
 and operate **53 AWS-compatible services** (EC2, S3, IAM, Lambda, RDS, DynamoDB,
 and more) against any Floci endpoint, with role-based access, audit logging, and a
@@ -154,3 +156,9 @@ Production uses the multi-stage `frontend/Dockerfile` (standalone Next.js server
 | CORS error on login | Ensure `BACKEND_CORS_ORIGINS` in `.env` includes your frontend origin (e.g. `http://localhost:3000`), then recreate the backend |
 | Blank page after first login | Hard-refresh once (⌘/Ctrl+Shift+R) |
 | `JWT_SECRET is required` on start | You skipped setting it in `.env` |
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
